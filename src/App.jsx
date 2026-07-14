@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   Flower2, Trash2, RotateCw, Plus, Minus, Copy, ArrowUp, Sparkles,
-  ShoppingBag, MapPin, Star, Truck, Camera, Check, ChevronLeft,
-  MessageCircle, Wand2, Eraser, Store, Route, CreditCard, Leaf, Heart
+  ShoppingBag, MapPin, Star, Truck, Camera, Check, ChevronLeft, ChevronRight,
+  MessageCircle, Wand2, Eraser, Store, Route, CreditCard, Leaf, Heart,
+  BadgeCheck, Search, ShieldCheck
 } from "lucide-react";
 import { supabase, ADMIN_WA } from "./lib/supabase";
 
@@ -13,277 +14,51 @@ import { supabase, ADMIN_WA } from "./lib/supabase";
    ============================================================ */
 
 const C = {
-  maroon: "#5c1f33",
-  maroonDeep: "#471728",
-  maroonSoft: "#7a3a50",
-  rose: "#c08484",
-  roseSoft: "#e3c6c6",
-  teal: "#6fa294",
-  tealDeep: "#4f7d72",
-  gold: "#c9a24b",
-  goldSoft: "#e6cf9a",
-  cream: "#f5efe4",
-  card: "#fdfaf3",
-  ink: "#3b2a30",
-  inkSoft: "#82717a",
-  line: "#e7dcc9",
+  maroon: "#B93365",     // bloom
+  maroonDeep: "#173D28", // green-900 (dark bg bands: header logo ink, footer, ribbon, join banner)
+  bloomDark: "#8F2450",  // bloom-dark (hover state for bloom-colored buttons)
+  maroonSoft: "#C97290", // muted bloom (decorative strokes)
+  rose: "#D98CAA",       // soft bloom accent (hover borders, dashed guides)
+  roseSoft: "#F6DCE6",   // petal (light pink icon-chip backgrounds)
+  teal: "#275C3B",       // green-700
+  tealDeep: "#173D28",   // green-900
+  gold: "#E6A93B",       // marigold
+  goldSoft: "#F0C36B",   // lighter marigold (numerals/icons on dark bg)
+  cream: "#EEF4EC",      // green-100 (page bg / light neutral panels / fields)
+  card: "#FFFFFF",       // paper
+  ink: "#1C2A20",         // ink
+  inkSoft: "#49584D",     // ink-soft
+  line: "#E4E9E2",        // line
 };
 
-const serif = "Georgia, 'Times New Roman', serif";
-const sans = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+const serif = "'Bricolage Grotesque', Georgia, 'Times New Roman', serif";
+const sans = "'Plus Jakarta Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 
 const rupiah = (n) => "Rp" + new Intl.NumberFormat("id-ID").format(n);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 let __id = 1;
 const uid = () => "it" + __id++;
 
-/* ---------------- SVG helpers & flower illustrations ---------------- */
-
-const ring = (n, rx, ry, dist, fill, opacity = 1, seed = 0) =>
-  Array.from({ length: n }).map((_, i) => (
-    <ellipse
-      key={i}
-      cx="50"
-      cy={50 - dist}
-      rx={rx}
-      ry={ry}
-      fill={fill}
-      opacity={opacity}
-      transform={`rotate(${(360 / n) * i + seed} 50 50)`}
-    />
-  ));
-
-const Rose = ({ a, b, c }) => (
-  <>
-    {ring(7, 15, 21, 17, a)}
-    {ring(6, 12, 16, 10, b)}
-    <circle cx="50" cy="50" r="13" fill={a} />
-    <path d="M50 40 a10 10 0 1 1 -10 10 a6.5 6.5 0 1 0 10 -10" fill={b} />
-    <circle cx="50" cy="50" r="4" fill={c} />
-  </>
-);
-
-const Lily = () => (
-  <>
-    {Array.from({ length: 6 }).map((_, i) => (
-      <path
-        key={i}
-        d="M50 50 C 42 36, 44 18, 50 8 C 56 18, 58 36, 50 50 Z"
-        fill="#fbf6ec"
-        stroke="#e8ddc8"
-        strokeWidth="1"
-        transform={`rotate(${60 * i} 50 50)`}
-      />
-    ))}
-    <circle cx="50" cy="50" r="7" fill={C.goldSoft} />
-    {Array.from({ length: 6 }).map((_, i) => (
-      <circle key={i} cx="50" cy="38" r="2.4" fill={C.gold} transform={`rotate(${60 * i + 30} 50 50)`} />
-    ))}
-  </>
-);
-
-const Tulip = ({ a, b }) => (
-  <>
-    <path d="M26 44 C 24 76, 40 88, 50 90 C 60 88, 76 76, 74 44 C 66 52, 60 52, 58 46 C 55 53, 45 53, 42 46 C 40 52, 34 52, 26 44 Z" fill={a} />
-    <path d="M42 46 C 45 53, 55 53, 58 46 C 58 66, 54 80, 50 86 C 46 80, 42 66, 42 46 Z" fill={b} />
-    <path d="M26 44 C 30 36, 40 32, 50 33 C 60 32, 70 36, 74 44 C 66 52, 60 52, 58 46 C 55 53, 45 53, 42 46 C 40 52, 34 52, 26 44 Z" fill={b} opacity="0.55" />
-  </>
-);
-
-const Sunflower = () => (
-  <>
-    {ring(14, 7, 20, 26, "#e8b53a")}
-    {ring(14, 6, 16, 22, "#f2c957", 1, 13)}
-    <circle cx="50" cy="50" r="17" fill="#6b4423" />
-    <circle cx="50" cy="50" r="17" fill="none" stroke="#4e2f16" strokeWidth="3" strokeDasharray="2 3" />
-    <circle cx="45" cy="45" r="2" fill="#8a5a2e" />
-    <circle cx="55" cy="48" r="2" fill="#8a5a2e" />
-    <circle cx="49" cy="55" r="2" fill="#8a5a2e" />
-  </>
-);
-
-const Peony = ({ a, b }) => (
-  <>
-    {ring(8, 16, 19, 18, a)}
-    {ring(8, 13, 15, 12, b, 1, 22)}
-    {ring(7, 9, 11, 7, a, 1, 8)}
-    <circle cx="50" cy="50" r="8" fill={b} />
-    <circle cx="50" cy="50" r="3.5" fill={C.goldSoft} />
-  </>
-);
-
-const Krisan = ({ a, b }) => (
-  <>
-    {ring(18, 3.6, 17, 20, a)}
-    {ring(16, 3.2, 13, 14, b, 1, 10)}
-    {ring(12, 3, 9, 9, a, 1, 5)}
-    <circle cx="50" cy="50" r="6" fill={b} />
-  </>
-);
-
-const Orchid = () => (
-  <>
-    <ellipse cx="50" cy="27" rx="10" ry="18" fill="#e9d7ee" />
-    <ellipse cx="30" cy="44" rx="17" ry="10" fill="#e9d7ee" transform="rotate(-20 30 44)" />
-    <ellipse cx="70" cy="44" rx="17" ry="10" fill="#e9d7ee" transform="rotate(20 70 44)" />
-    <ellipse cx="36" cy="62" rx="13" ry="9" fill="#d9b7e2" transform="rotate(25 36 62)" />
-    <ellipse cx="64" cy="62" rx="13" ry="9" fill="#d9b7e2" transform="rotate(-25 64 62)" />
-    <path d="M50 46 C 42 52, 42 64, 50 70 C 58 64, 58 52, 50 46 Z" fill="#a24b8f" />
-    <circle cx="50" cy="52" r="3.5" fill={C.goldSoft} />
-    <circle cx="46" cy="58" r="1.5" fill="#7c2f6c" />
-    <circle cx="54" cy="58" r="1.5" fill="#7c2f6c" />
-  </>
-);
-
-const jag = (cx, cy, r, teeth) => {
-  let d = "";
-  for (let i = 0; i <= teeth * 2; i++) {
-    const ang = (Math.PI * 2 * i) / (teeth * 2) - Math.PI / 2;
-    const rr = i % 2 === 0 ? r : r * 0.82;
-    const x = cx + Math.cos(ang) * rr;
-    const y = cy + Math.sin(ang) * rr;
-    d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
-  }
-  return d + "Z";
-};
-
-const Carnation = ({ a, b }) => (
-  <>
-    <path d={jag(50, 50, 34, 14)} fill={a} />
-    <path d={jag(50, 50, 25, 12)} fill={b} />
-    <path d={jag(50, 50, 16, 10)} fill={a} />
-    <path d={jag(50, 50, 8, 8)} fill={b} />
-  </>
-);
-
-const Daisy = () => (
-  <>
-    {ring(12, 6, 17, 21, "#fdfbf4")}
-    {ring(12, 5, 14, 17, "#f3ecda", 1, 15)}
-    <circle cx="50" cy="50" r="11" fill="#eebc3f" />
-    <circle cx="47" cy="47" r="2" fill="#d9a52a" />
-    <circle cx="54" cy="51" r="2" fill="#d9a52a" />
-  </>
-);
-
-const Lavender = () => (
-  <>
-    <path d="M50 92 C 50 70, 50 55, 50 38" stroke="#7f9a6d" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-    {[
-      [50, 16], [43, 24], [57, 24], [46, 33], [54, 33], [50, 28],
-      [42, 42], [58, 42], [50, 40], [45, 51], [55, 51], [50, 49], [50, 60],
-    ].map(([x, y], i) => (
-      <ellipse key={i} cx={x} cy={y} rx="5.5" ry="7" fill={i % 3 === 0 ? "#8f7cc0" : "#a794d6"} />
-    ))}
-  </>
-);
-
-const floret = (x, y, s, a, b) => (
-  <g key={x + "-" + y} transform={`translate(${x} ${y}) scale(${s})`}>
-    <circle cx="0" cy="-6" r="5" fill={a} />
-    <circle cx="0" cy="6" r="5" fill={a} />
-    <circle cx="-6" cy="0" r="5" fill={a} />
-    <circle cx="6" cy="0" r="5" fill={a} />
-    <circle cx="0" cy="0" r="2.6" fill={b} />
-  </g>
-);
-
-const Hydrangea = () => (
-  <>
-    <circle cx="50" cy="50" r="31" fill="#b9c4e6" opacity="0.5" />
-    {floret(50, 32, 1.1, "#aab8e4", "#7d8fc7")}
-    {floret(33, 44, 1.05, "#c3cdee", "#8fa0d3")}
-    {floret(67, 44, 1.05, "#aab8e4", "#7d8fc7")}
-    {floret(41, 61, 1.1, "#b6c2ea", "#8598cd")}
-    {floret(59, 61, 1.0, "#c3cdee", "#8fa0d3")}
-    {floret(50, 48, 1.15, "#9fb0e0", "#7487c2")}
-  </>
-);
-
-const BabysBreath = () => (
-  <>
-    {[
-      [50, 82, 30, 30], [50, 82, 62, 26], [50, 82, 46, 18],
-    ].map(([x1, y1, x2, y2], i) => (
-      <path key={i} d={`M${x1} ${y1} Q ${(x1 + x2) / 2 + 6} ${(y1 + y2) / 2}, ${x2} ${y2}`} stroke="#93a97f" strokeWidth="1.6" fill="none" />
-    ))}
-    {[
-      [30, 27], [38, 20], [46, 15], [56, 18], [64, 23], [70, 32],
-      [34, 38], [44, 30], [54, 28], [62, 36], [48, 42], [58, 46], [38, 48],
-    ].map(([x, y], i) => (
-      <g key={i}>
-        <circle cx={x} cy={y} r="4.5" fill="#fdfcf7" stroke="#e7e0cd" strokeWidth="0.8" />
-        <circle cx={x} cy={y} r="1.3" fill="#e4d9b8" />
-      </g>
-    ))}
-  </>
-);
-
-const Eucalyptus = () => (
-  <>
-    <path d="M50 94 C 48 70, 52 40, 46 10" stroke="#7c9a8e" strokeWidth="3" fill="none" strokeLinecap="round" />
-    {[
-      [49, 78, -1], [49, 66, 1], [50, 55, -1], [50, 44, 1], [49, 33, -1], [48, 22, 1], [47, 13, -1],
-    ].map(([x, y, s], i) => (
-      <circle key={i} cx={x + s * 11} cy={y} r={8 - i * 0.55} fill={i % 2 ? "#9dbcae" : "#8bafa0"} />
-    ))}
-  </>
-);
-
-const Fern = () => (
-  <>
-    <path d="M50 94 C 50 66, 50 38, 50 10" stroke="#5f7d54" strokeWidth="2.6" fill="none" strokeLinecap="round" />
-    {Array.from({ length: 9 }).map((_, i) => {
-      const y = 84 - i * 8.6;
-      const len = 20 - i * 1.9;
-      return (
-        <g key={i}>
-          <path d={`M50 ${y} Q ${50 - len * 0.7} ${y - 4}, ${50 - len} ${y - 7}`} stroke="#6f9160" strokeWidth={4.5 - i * 0.3} fill="none" strokeLinecap="round" />
-          <path d={`M50 ${y} Q ${50 + len * 0.7} ${y - 4}, ${50 + len} ${y - 7}`} stroke="#7ba26b" strokeWidth={4.5 - i * 0.3} fill="none" strokeLinecap="round" />
-        </g>
-      );
-    })}
-  </>
-);
-
-const Monstera = () => (
-  <>
-    <path d="M50 92 C 50 78, 50 70, 50 62" stroke="#3f6b4f" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-    <path d="M50 64 C 20 60, 12 34, 26 18 C 38 6, 62 6, 74 18 C 88 34, 80 60, 50 64 Z" fill="#4e8060" />
-    {[-28, -14, 14, 28].map((dx, i) => (
-      <path
-        key={i}
-        d={`M50 60 Q ${50 + dx * 0.6} ${44 - Math.abs(dx) * 0.3}, ${50 + dx} ${26 - Math.abs(dx) * 0.2}`}
-        stroke={C.card}
-        strokeWidth="5"
-        fill="none"
-        strokeLinecap="round"
-      />
-    ))}
-    <path d="M50 62 C 50 46, 50 32, 50 18" stroke="#3f6b4f" strokeWidth="2.4" fill="none" />
-  </>
-);
-
 /* ---------------- Catalog ---------------- */
 
 const FLOWERS = [
-  { id: "mawar_merah", nama: "Mawar Merah", harga: 15000, kat: "bunga", el: <Rose a="#b03a4d" b="#8e2b3d" c="#e3899a" /> },
-  { id: "mawar_putih", nama: "Mawar Putih", harga: 15000, kat: "bunga", el: <Rose a="#f6f1e6" b="#e6dcc8" c="#fbf8f0" /> },
-  { id: "mawar_pink", nama: "Mawar Pink", harga: 15000, kat: "bunga", el: <Rose a="#e3a1b0" b="#cf7f93" c="#f3cfd8" /> },
-  { id: "peony", nama: "Peony", harga: 35000, kat: "bunga", el: <Peony a="#eeb8c4" b="#f7dbe2" /> },
-  { id: "lily", nama: "Lily Putih", harga: 22000, kat: "bunga", el: <Lily /> },
-  { id: "tulip", nama: "Tulip", harga: 25000, kat: "bunga", el: <Tulip a="#d96a5f" b="#eb8f80" /> },
-  { id: "matahari", nama: "Bunga Matahari", harga: 18000, kat: "bunga", el: <Sunflower /> },
-  { id: "anggrek", nama: "Anggrek Bulan", harga: 30000, kat: "bunga", el: <Orchid /> },
-  { id: "krisan", nama: "Krisan Kuning", harga: 8000, kat: "bunga", el: <Krisan a="#e9c25a" b="#f4d98c" /> },
-  { id: "anyelir", nama: "Anyelir", harga: 10000, kat: "bunga", el: <Carnation a="#df97a8" b="#f0bcc8" /> },
-  { id: "daisy", nama: "Daisy", harga: 9000, kat: "bunga", el: <Daisy /> },
-  { id: "lavender", nama: "Lavender", harga: 12000, kat: "bunga", el: <Lavender /> },
-  { id: "hydrangea", nama: "Hortensia", harga: 28000, kat: "bunga", el: <Hydrangea /> },
-  { id: "babys", nama: "Baby's Breath", harga: 7000, kat: "filler", el: <BabysBreath /> },
-  { id: "eucalyptus", nama: "Eukaliptus", harga: 8000, kat: "filler", el: <Eucalyptus /> },
-  { id: "pakis", nama: "Daun Pakis", harga: 6000, kat: "filler", el: <Fern /> },
-  { id: "monstera", nama: "Monstera", harga: 12000, kat: "filler", el: <Monstera /> },
+  { id: "mawar_merah", nama: "Mawar Merah", harga: 15000, kat: "bunga", img: "https://images.pexels.com/photos/1820567/pexels-photo-1820567.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "mawar_putih", nama: "Mawar Putih", harga: 15000, kat: "bunga", img: "https://images.pexels.com/photos/8634917/pexels-photo-8634917.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "mawar_pink", nama: "Mawar Pink", harga: 15000, kat: "bunga", img: "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "peony", nama: "Peony", harga: 35000, kat: "bunga", img: "https://images.pexels.com/photos/8051675/pexels-photo-8051675.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "lily", nama: "Lily Putih", harga: 22000, kat: "bunga", img: "https://images.pexels.com/photos/1033141/pexels-photo-1033141.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "tulip", nama: "Tulip", harga: 25000, kat: "bunga", img: "https://images.pexels.com/photos/2480072/pexels-photo-2480072.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "matahari", nama: "Bunga Matahari", harga: 18000, kat: "bunga", img: "https://images.pexels.com/photos/18503542/pexels-photo-18503542.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "anggrek", nama: "Anggrek Bulan", harga: 30000, kat: "bunga", img: "https://images.pexels.com/photos/14100860/pexels-photo-14100860.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "krisan", nama: "Krisan Kuning", harga: 8000, kat: "bunga", img: "https://images.pexels.com/photos/2179204/pexels-photo-2179204.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "anyelir", nama: "Anyelir", harga: 10000, kat: "bunga", img: "https://images.pexels.com/photos/3392718/pexels-photo-3392718.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "daisy", nama: "Daisy", harga: 9000, kat: "bunga", img: "https://images.pexels.com/photos/8974827/pexels-photo-8974827.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "lavender", nama: "Lavender", harga: 12000, kat: "bunga", img: "https://images.pexels.com/photos/4984547/pexels-photo-4984547.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "hydrangea", nama: "Hortensia", harga: 28000, kat: "bunga", img: "https://images.pexels.com/photos/53135/hydrangea-blossom-bloom-flower-53135.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "babys", nama: "Baby's Breath", harga: 7000, kat: "filler", img: "https://images.pexels.com/photos/296678/pexels-photo-296678.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "eucalyptus", nama: "Eukaliptus", harga: 8000, kat: "filler", img: "https://images.pexels.com/photos/6068432/pexels-photo-6068432.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "pakis", nama: "Daun Pakis", harga: 6000, kat: "filler", img: "https://images.pexels.com/photos/1226302/pexels-photo-1226302.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
+  { id: "monstera", nama: "Monstera", harga: 12000, kat: "filler", img: "https://images.pexels.com/photos/7354633/pexels-photo-7354633.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop" },
 ];
 const FMAP = Object.fromEntries(FLOWERS.map((f) => [f.id, f]));
 
@@ -315,17 +90,17 @@ const FLORISTS = [
 const GlobalStyle = () => (
   <style>{`
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    .rk-root { font-family: ${sans}; color: ${C.ink}; background: ${C.cream}; min-height: 100vh; }
+    .rk-root { font-family: ${sans}; color: ${C.ink}; background: ${C.card}; min-height: 100vh; }
     .rk-serif { font-family: ${serif}; }
     .rk-btn { border: none; cursor: pointer; font-family: ${sans}; font-weight: 600; border-radius: 999px;
       display: inline-flex; align-items: center; gap: 8px; transition: transform .12s ease, box-shadow .12s ease, background .12s ease; }
     .rk-btn:hover { transform: translateY(-1px); }
     .rk-btn:focus-visible { outline: 3px solid ${C.gold}; outline-offset: 2px; }
     .rk-btn:active { transform: translateY(0); }
-    .rk-btn-primary { background: ${C.maroon}; color: ${C.cream}; box-shadow: 0 6px 16px rgba(92,31,51,.28); }
-    .rk-btn-primary:hover { background: ${C.maroonDeep}; }
+    .rk-btn-primary { background: ${C.maroon}; color: #fff; box-shadow: 0 6px 16px rgba(185,51,101,.28); }
+    .rk-btn-primary:hover { background: ${C.bloomDark}; }
     .rk-btn-ghost { background: transparent; color: ${C.maroon}; border: 1.5px solid ${C.maroon}; }
-    .rk-btn-ghost:hover { background: rgba(92,31,51,.06); }
+    .rk-btn-ghost:hover { background: rgba(185,51,101,.06); }
     .rk-btn-teal { background: ${C.tealDeep}; color: #fff; }
     .rk-chip { border: 1.5px solid ${C.line}; background: ${C.card}; border-radius: 12px; cursor: pointer;
       transition: border-color .12s, box-shadow .12s; font-family: ${sans}; }
@@ -335,18 +110,21 @@ const GlobalStyle = () => (
     .rk-card { background: ${C.card}; border: 1px solid ${C.line}; border-radius: 18px; }
     .rk-pal-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px 8px;
       border: 1.5px solid ${C.line}; border-radius: 14px; background: ${C.card}; cursor: pointer; transition: all .12s; }
-    .rk-pal-item:hover { border-color: ${C.rose}; transform: translateY(-2px); box-shadow: 0 8px 18px rgba(92,31,51,.10); }
+    .rk-pal-item:hover { border-color: ${C.rose}; transform: translateY(-2px); box-shadow: 0 8px 18px rgba(185,51,101,.10); }
     .rk-pal-item:focus-visible { outline: 3px solid ${C.gold}; outline-offset: 2px; }
     .rk-navlink { background:none; border:none; cursor:pointer; font-family:${sans}; font-size:14.5px; font-weight:600;
-      color:${C.cream}; opacity:.85; padding:6px 2px; }
-    .rk-navlink:hover { opacity:1; text-decoration: underline; text-underline-offset: 4px; }
-    .rk-tool { background:${C.maroon}; color:${C.cream}; border:none; border-radius:10px; width:34px; height:34px;
+      padding:6px 2px; text-decoration:none; transition:color .15s, opacity .15s; }
+    .rk-navlink-onlight { color:${C.inkSoft}; }
+    .rk-navlink-onlight:hover { color:${C.maroon}; }
+    .rk-navlink-ondark { color:${C.cream}; opacity:.85; }
+    .rk-navlink-ondark:hover { opacity:1; color:${C.gold}; }
+    .rk-tool { background:${C.maroon}; color:#fff; border:none; border-radius:10px; width:34px; height:34px;
       display:flex; align-items:center; justify-content:center; cursor:pointer; }
-    .rk-tool:hover { background:${C.maroonDeep}; }
+    .rk-tool:hover { background:${C.bloomDark}; }
     .rk-tool-danger { background:#a13d3d; }
     .rk-input { width:100%; padding:11px 13px; border:1.5px solid ${C.line}; border-radius:12px; background:#fff;
       font-family:${sans}; font-size:14.5px; color:${C.ink}; }
-    .rk-input:focus { outline:none; border-color:${C.maroon}; box-shadow:0 0 0 3px rgba(92,31,51,.12); }
+    .rk-input:focus { outline:none; border-color:${C.maroon}; box-shadow:0 0 0 3px rgba(185,51,101,.12); }
     .rk-builder-grid { display:grid; grid-template-columns: 250px 1fr 300px; gap:18px; align-items:start; }
     .rk-steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
     .rk-arch-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
@@ -373,13 +151,65 @@ const GlobalStyle = () => (
       .rk-wreath-hero, .rk-float, .rk-pulse { animation: none; }
       .rk-btn, .rk-pal-item { transition: none; }
     }
+
+    /* ---------- homepage marketplace sections ---------- */
+    .rk-eyebrow { font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:${C.maroon}; display:inline-flex; align-items:center; gap:7px; }
+    .rk-search-panel { margin-top:24px; background:#fff; border:1px solid ${C.line}; border-radius:16px;
+      box-shadow:0 18px 40px -24px rgba(28,42,32,.35); padding:12px; max-width:600px; }
+    .rk-search-field { display:flex; flex-direction:column; gap:2px; padding:6px 12px; border-radius:11px; background:${C.cream}; }
+    .rk-search-field label { font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:${C.maroon}; }
+    .rk-search-field select { width:100%; border:none; background:transparent; font-family:${sans}; font-size:14.5px;
+      font-weight:600; color:${C.ink}; padding:4px 0; cursor:pointer; }
+    .rk-quick-pill { border:1px solid ${C.line}; background:#fff; color:${C.maroonDeep}; padding:6px 14px;
+      border-radius:999px; font-family:${sans}; font-weight:600; font-size:13px; cursor:pointer; transition:border-color .15s, color .15s; }
+    .rk-quick-pill:hover { border-color:${C.maroon}; color:${C.maroon}; }
+    .rk-ribbon { background:${C.maroonDeep}; color:${C.cream}; overflow:hidden; padding:13px 0; border-top:3px solid ${C.gold}; border-bottom:3px solid ${C.gold}; }
+    .rk-ribbon-track { display:flex; gap:44px; white-space:nowrap; width:max-content; font-family:${serif}; font-weight:700; font-size:14.5px; letter-spacing:.02em; }
+    @media (prefers-reduced-motion:no-preference){
+      .rk-ribbon-track { animation: rk-ribbon-slide 32s linear infinite; }
+      @keyframes rk-ribbon-slide { to { transform: translateX(-50%); } }
+    }
+    .rk-cat-card { border:1px solid ${C.line}; border-radius:16px; padding:22px; background:#fff; cursor:pointer;
+      text-align:left; width:100%; font-family:${sans}; transition:border-color .15s, transform .15s; }
+    .rk-cat-card:hover { border-color:${C.maroon}; transform:translateY(-3px); }
+    .rk-cat-card:focus-visible { outline:3px solid ${C.gold}; outline-offset:2px; }
+    .rk-cat-icon { width:42px; height:42px; border-radius:11px; background:${C.roseSoft}; display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+    .rk-florist-card { border:1px solid ${C.line}; border-radius:16px; overflow:hidden; background:#fff; cursor:pointer;
+      width:100%; font-family:${sans}; transition:transform .15s, border-color .15s; }
+    .rk-florist-card:hover { transform:translateY(-3px); border-color:${C.maroon}; }
+    .rk-florist-card:focus-visible { outline:3px solid ${C.gold}; outline-offset:2px; }
+    .rk-florist-photo { height:110px; position:relative; }
+    .rk-badge { position:absolute; top:10px; left:10px; background:#fff; color:${C.maroon}; font-size:10.5px; font-weight:700;
+      letter-spacing:.05em; text-transform:uppercase; padding:4px 9px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; }
+    .rk-link-chip { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:11px; font-size:13.5px;
+      font-weight:600; border:1px solid ${C.line}; background:#fff; color:${C.inkSoft}; font-family:${sans}; }
+    .rk-link-chip-active { cursor:pointer; color:${C.maroon}; transition:border-color .15s; }
+    .rk-link-chip-active:hover { border-color:${C.maroon}; }
+    .rk-link-chip-active:focus-visible { outline:3px solid ${C.gold}; outline-offset:2px; }
+    .rk-join-card { background:${C.maroonDeep}; color:${C.cream}; border-radius:22px; padding:44px; position:relative; overflow:hidden; }
+    .rk-faq-item { border-bottom:1px solid ${C.line}; }
+    .rk-faq-item summary { cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;
+      gap:16px; padding:20px 2px; font-family:${serif}; font-weight:700; font-size:17px; color:${C.maroon}; }
+    .rk-faq-item summary::-webkit-details-marker{ display:none; }
+    .rk-faq-chev { width:18px; height:18px; flex:none; transition:transform .2s; color:${C.gold}; }
+    .rk-faq-item[open] .rk-faq-chev { transform:rotate(45deg); }
+    .rk-faq-answer { padding:0 2px 22px; color:${C.inkSoft}; font-size:14.5px; line-height:1.6; }
   `}</style>
 );
 
 /* ---------------- Mini flower thumbnail ---------------- */
 
 const Thumb = ({ f, size = 44 }) => (
-  <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">{f.el}</svg>
+  <img
+    src={f.img}
+    alt={f.nama}
+    loading="lazy"
+    draggable={false}
+    style={{
+      width: size, height: size, borderRadius: "50%", objectFit: "cover",
+      display: "block", boxShadow: "0 2px 4px rgba(59,42,48,.22)",
+    }}
+  />
 );
 
 /* ---------------- Stage guides ---------------- */
@@ -491,13 +321,22 @@ function Stage({ items, mode, wrap, base, sizeCfg, selectedId, onSelect, onDragT
               left: it.x + "%",
               top: it.y + "%",
               width: it.size + "%",
+              aspectRatio: "1 / 1",
               transform: `translate(-50%, -50%) rotate(${it.rot}deg)`,
               zIndex: idx + 1,
               cursor: readonly ? "default" : "grab",
               filter: sel ? "drop-shadow(0 0 5px rgba(201,162,75,.95))" : "drop-shadow(0 3px 4px rgba(59,42,48,.18))",
             }}
           >
-            <svg viewBox="0 0 100 100" style={{ width: "100%", height: "auto", display: "block" }}>{f.el}</svg>
+            <img
+              src={f.img}
+              alt={f.nama}
+              draggable={false}
+              style={{
+                width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover",
+                display: "block", border: "2px solid #fff",
+              }}
+            />
           </div>
         );
       })}
@@ -520,23 +359,34 @@ function Stage({ items, mode, wrap, base, sizeCfg, selectedId, onSelect, onDragT
 const HeroWreath = () => {
   const picks = ["mawar_merah", "daisy", "eucalyptus", "mawar_pink", "krisan", "babys", "anyelir", "eucalyptus", "mawar_putih", "lavender", "daisy", "mawar_merah"];
   return (
-    <svg viewBox="0 0 240 240" width="100%" style={{ maxWidth: 340 }} aria-hidden="true">
-      <g className="rk-wreath-hero">
-        <circle cx="120" cy="120" r="78" fill="none" stroke={C.maroonSoft} strokeWidth="10" opacity="0.5" />
+    <div style={{ position: "relative", width: "100%", maxWidth: 340, aspectRatio: "1 / 1" }} aria-hidden="true">
+      <div className="rk-wreath-hero" style={{ position: "absolute", inset: 0 }}>
+        <svg viewBox="0 0 240 240" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
+          <circle cx="120" cy="120" r="78" fill="none" stroke={C.maroonSoft} strokeWidth="10" opacity="0.5" />
+        </svg>
         {picks.map((pid, i) => {
           const a = (Math.PI * 2 * i) / picks.length;
-          const x = 120 + Math.cos(a) * 78;
-          const y = 120 + Math.sin(a) * 78;
+          const x = 50 + Math.cos(a) * 32.5;
+          const y = 50 + Math.sin(a) * 32.5;
           return (
-            <g key={i} transform={`translate(${x - 19} ${y - 19}) scale(0.38)`}>
-              {FMAP[pid].el}
-            </g>
+            <img
+              key={i}
+              src={FMAP[pid].img}
+              alt=""
+              style={{
+                position: "absolute", left: x + "%", top: y + "%", width: "15%", aspectRatio: "1 / 1",
+                transform: "translate(-50%, -50%)", borderRadius: "50%", objectFit: "cover",
+                border: `2px solid ${C.card}`, boxShadow: "0 3px 10px rgba(28,42,32,.18)",
+              }}
+            />
           );
         })}
-      </g>
-      <text x="120" y="114" textAnchor="middle" fill={C.goldSoft} fontFamily={serif} fontSize="17" fontStyle="italic">kala</text>
-      <text x="120" y="136" textAnchor="middle" fill={C.cream} fontFamily={serif} fontSize="17" fontStyle="italic">mekar</text>
-    </svg>
+      </div>
+      <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+        <span style={{ fontFamily: serif, fontStyle: "italic", fontSize: 17, color: C.maroon, lineHeight: 1.3 }}>kala</span>
+        <span style={{ fontFamily: serif, fontStyle: "italic", fontSize: 17, color: C.maroonDeep, lineHeight: 1.3 }}>mekar</span>
+      </div>
+    </div>
   );
 };
 
@@ -551,55 +401,188 @@ const STEPS = [
   { icon: Truck, t: "6 · Antar", d: "Kurir mengantar. Dana escrow diteruskan ke floris setelah diterima." },
 ];
 
-function Home({ go }) {
+const CATEGORIES = [
+  { id: "hand-bouquet", nama: "Hand Bouquet", desc: "Buket tangan segar untuk anniversary, wisuda, dan hadiah spesial.", mode: "bouquet", icon: Flower2 },
+  { id: "papan-bunga", nama: "Papan Bunga", desc: "Ucapan selamat, duka cita, dan grand opening — kirim di hari yang sama.", mode: "wreath", icon: Heart },
+  { id: "standing-flower", nama: "Standing Flower", desc: "Rangkaian berdiri yang elegan untuk acara resmi dan seremonial.", mode: "wreath", icon: Sparkles },
+  { id: "bunga-meja", nama: "Bunga Meja", desc: "Vas dan rangkaian meja untuk kantor, resepsionis, dan rumah.", mode: "bouquet", icon: Leaf },
+  { id: "parcel-hampers", nama: "Parcel & Hampers", desc: "Bingkisan bunga, buah, dan hampers untuk hari raya dan perayaan.", mode: "bouquet", icon: ShoppingBag },
+  { id: "dekorasi-acara", nama: "Dekorasi Acara", desc: "Dekorasi pernikahan, lamaran, dan acara korporat oleh floris profesional.", mode: "wreath", icon: Store },
+];
+
+const OCCASIONS = [
+  { nama: "Bunga Wisuda", mode: "bouquet" },
+  { nama: "Bunga Duka Cita", mode: "wreath" },
+  { nama: "Papan Bunga Pernikahan", mode: "wreath" },
+  { nama: "Bunga Anniversary", mode: "bouquet" },
+  { nama: "Papan Bunga Grand Opening", mode: "wreath" },
+  { nama: "Bunga Ulang Tahun", mode: "bouquet" },
+  { nama: "Bunga Valentine", mode: "bouquet" },
+  { nama: "Bunga untuk Ibu", mode: "bouquet" },
+];
+
+const CITIES = [
+  { nama: "Jakarta Selatan", live: true },
+  { nama: "Jakarta", live: false },
+  { nama: "Bandung", live: false },
+  { nama: "Surabaya", live: false },
+  { nama: "Medan", live: false },
+  { nama: "Semarang", live: false },
+  { nama: "Yogyakarta", live: false },
+  { nama: "Denpasar", live: false },
+  { nama: "Makassar", live: false },
+  { nama: "Tangerang", live: false },
+  { nama: "Bekasi", live: false },
+  { nama: "Bogor", live: false },
+];
+
+const RIBBON_TAGS = ["Bunga Wisuda", "Papan Bunga Pernikahan", "Bunga Duka Cita", "Grand Opening", "Anniversary", "Hand Bouquet Valentine"];
+
+const FEATURED_FLORISTS = [
+  { nama: "Melati Kirana Florist", meta: "Jakarta Selatan · Same-day", rating: 4.9, ulasan: 212, colors: ["#B93365", "#E6A93B", "#8F2450"] },
+  { nama: "Sekar Ayu Flora", meta: "Bandung · Same-day", rating: 4.8, ulasan: 167, colors: ["#275C3B", "#B93365", "#E6A93B"] },
+  { nama: "Bunga Nusantara", meta: "Surabaya · Papan bunga", rating: 4.9, ulasan: 324, colors: ["#E6A93B", "#B93365", "#275C3B"] },
+  { nama: "Dahlia Bali Florist", meta: "Denpasar · Dekorasi", rating: 5.0, ulasan: 98, colors: ["#B93365", "#8F2450", "#E6A93B"] },
+];
+
+const KENAPA_FEATURES = [
+  [ShieldCheck, "Florist terverifikasi", "Setiap toko dikurasi tim kami — alamat nyata, galeri asli, tanpa foto curian."],
+  [Route, "Pengiriman same-day", "Pesan sebelum jam 3 sore, bunga tiba di hari yang sama di kota-kota besar."],
+  [CreditCard, "Harga transparan", "Harga langsung dari florist, tanpa markup tersembunyi atau biaya kejutan."],
+  [MessageCircle, "Chat langsung", "Diskusikan rangkaian, warna, dan kartu ucapan langsung dengan floristnya."],
+];
+
+const FAQS = [
+  { q: "Apa itu Kalamekar?", a: "Kalamekar adalah marketplace yang menghubungkan Anda dengan toko bunga dan florist lokal terverifikasi di seluruh Indonesia. Anda bisa membandingkan galeri, harga, dan ulasan, lalu memesan langsung ke florist pilihan Anda — termasuk lewat kanvas rangkai custom kami." },
+  { q: "Bagaimana cara memesan bunga di Kalamekar?", a: "Cari florist di kota Anda, pilih produk dari galeri florist, lalu klik tombol Pesan via WhatsApp — atau klik \"Mulai Merangkai\" untuk menyusun buket/krans Anda sendiri di kanvas drag-and-drop kami." },
+  { q: "Apakah bisa kirim bunga di hari yang sama?", a: "Bisa. Sebagian besar florist di Kalamekar melayani pengiriman same-day untuk pemesanan sebelum pukul 15.00 waktu setempat. Cari badge Same-Day pada profil florist." },
+  { q: "Kota mana saja yang sudah terjangkau Kalamekar?", a: "Kalamekar tersedia di 25+ kota termasuk Jakarta, Bandung, Surabaya, Medan, Semarang, Yogyakarta, Denpasar, dan Makassar — dan terus bertambah setiap bulan." },
+  { q: "Bagaimana cara bergabung sebagai florist di Kalamekar?", a: "Daftarkan toko bunga Anda secara gratis melalui tombol WhatsApp pada bagian \"Punya toko bunga?\" di halaman ini. Tim kami akan memverifikasi toko Anda dalam 2–3 hari kerja sebelum etalase Anda tayang." },
+];
+
+function Home({ go, setDesign }) {
+  const [kategori, setKategori] = useState(CATEGORIES[0].id);
+  const [ukuran, setUkuran] = useState("M");
+
+  const openBuilder = (mode, size) => {
+    setDesign((d) => ({ ...d, mode: mode || d.mode, sizeId: size || d.sizeId }));
+    go("builder");
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const cat = CATEGORIES.find((c) => c.id === kategori) || CATEGORIES[0];
+    openBuilder(cat.mode, ukuran);
+  };
+
   return (
     <div>
       {/* Hero */}
-      <section style={{ background: `linear-gradient(160deg, ${C.maroon} 0%, ${C.maroonDeep} 100%)`, color: C.cream, padding: "0 20px" }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 32, padding: "64px 0 72px" }}>
+      <section style={{ background: "linear-gradient(180deg, #FDF7FA 0%, #FFFFFF 70%)", padding: "0 20px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 32, padding: "60px 0 68px" }}>
           <div style={{ flex: "1 1 420px", minWidth: 280 }}>
-            <div style={{ letterSpacing: 3, fontSize: 12.5, fontWeight: 700, color: C.goldSoft, textTransform: "uppercase", marginBottom: 18 }}>
-              Rangkai sendiri · Dirakit floris lokal
-            </div>
-            <h1 className="rk-serif rk-hero-title" style={{ fontSize: 46, lineHeight: 1.12, fontWeight: 700, marginBottom: 18 }}>
-              Buket & krans impianmu,
-              <br />
-              kamu yang merangkai.
+            <span className="rk-eyebrow"><Leaf size={13} /> Marketplace florist lokal Indonesia</span>
+            <h1 className="rk-serif rk-hero-title" style={{ fontSize: 44, lineHeight: 1.14, fontWeight: 700, margin: "16px 0", color: C.maroonDeep }}>
+              Temukan toko bunga & florist terpercaya{" "}
+              <em style={{ fontStyle: "normal", color: C.maroon, position: "relative", whiteSpace: "nowrap" }}>
+                <span style={{ position: "absolute", left: 0, right: 0, bottom: 4, height: 10, background: C.roseSoft, zIndex: -1, borderRadius: 6 }} />
+                di kotamu
+              </em>
             </h1>
-            <p style={{ fontSize: 16.5, lineHeight: 1.65, opacity: 0.88, maxWidth: 520, marginBottom: 28 }}>
-              Susun bunga tangkai demi tangkai lewat kanvas drag-and-drop, lihat harga langsung,
-              lalu biarkan floris partner terdekat merakit dan mengantarnya untukmu.
+            <p style={{ fontSize: 16, lineHeight: 1.65, color: C.inkSoft, maxWidth: 500, marginBottom: 8 }}>
+              Kalamekar menghubungkan Anda dengan ratusan florist lokal terverifikasi di 25+ kota — hand bouquet,
+              papan bunga, hingga dekorasi pernikahan. Susun sendiri lewat kanvas drag-and-drop kami, pesan langsung,
+              dikirim di hari yang sama.
             </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <button className="rk-btn rk-btn-primary" style={{ background: C.gold, color: C.maroonDeep, padding: "14px 26px", fontSize: 15.5 }} onClick={() => go("builder")}>
-                <Wand2 size={18} /> Mulai merangkai
-              </button>
-              <button className="rk-btn rk-btn-ghost" style={{ borderColor: C.cream, color: C.cream, padding: "14px 22px", fontSize: 15 }}
-                onClick={() => document.getElementById("cara-kerja")?.scrollIntoView({ behavior: "smooth" })}>
-                Lihat cara kerja
-              </button>
+
+            <form className="rk-search-panel" onSubmit={handleSearchSubmit} aria-label="Mulai merangkai bunga">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                <div className="rk-search-field" style={{ flex: "1 1 160px" }}>
+                  <label htmlFor="kategori-select">Kategori</label>
+                  <select id="kategori-select" value={kategori} onChange={(e) => setKategori(e.target.value)}>
+                    {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.nama}</option>)}
+                  </select>
+                </div>
+                <div className="rk-search-field" style={{ flex: "1 1 120px" }}>
+                  <label htmlFor="ukuran-select">Ukuran</label>
+                  <select id="ukuran-select" value={ukuran} onChange={(e) => setUkuran(e.target.value)}>
+                    {SIZES.map((s) => <option key={s.id} value={s.id}>{s.nama} · {s.saran}</option>)}
+                  </select>
+                </div>
+                <button className="rk-btn" type="submit" style={{ background: C.maroon, color: "#fff", padding: "13px 20px", fontSize: 14.5, flex: "0 0 auto" }}>
+                  <Search size={16} /> Mulai Merangkai
+                </button>
+              </div>
+            </form>
+
+            <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", fontSize: 13.5, color: C.inkSoft }}>
+              Populer:
+              {OCCASIONS.slice(0, 4).map((o) => (
+                <button key={o.nama} type="button" className="rk-quick-pill" onClick={() => openBuilder(o.mode)}>{o.nama}</button>
+              ))}
             </div>
-            <div style={{ display: "flex", gap: 22, marginTop: 34, flexWrap: "wrap" }}>
-              {[["17", "jenis bunga & daun"], ["3–5", "floris partner pilot"], ["100%", "escrow terlindungi"]].map(([n, l]) => (
+
+            <div style={{ display: "flex", gap: 22, marginTop: 30, flexWrap: "wrap" }}>
+              {[["500+", "Florist terverifikasi"], ["25+", "Kota Indonesia"], ["4.9/5", "Rating pembeli"]].map(([n, l]) => (
                 <div key={l}>
-                  <div className="rk-serif" style={{ fontSize: 26, fontWeight: 700, color: C.goldSoft }}>{n}</div>
-                  <div style={{ fontSize: 12.5, opacity: 0.75 }}>{l}</div>
+                  <div className="rk-serif" style={{ fontSize: 24, fontWeight: 700, color: C.maroonDeep }}>{n}</div>
+                  <div style={{ fontSize: 12.5, color: C.inkSoft }}>{l}</div>
                 </div>
               ))}
             </div>
+
+            <button className="rk-btn rk-btn-ghost" style={{ padding: "12px 20px", fontSize: 14, marginTop: 22 }}
+              onClick={() => document.getElementById("cara-kerja")?.scrollIntoView({ behavior: "smooth" })}>
+              Lihat cara kerja
+            </button>
           </div>
-          <div className="rk-float" style={{ flex: "0 1 340px", minWidth: 260, display: "flex", justifyContent: "center" }}>
+          <div className="rk-float" style={{ flex: "0 1 320px", minWidth: 240, display: "flex", justifyContent: "center" }}>
             <HeroWreath />
           </div>
         </div>
       </section>
 
-      {/* Cara kerja */}
-      <section id="cara-kerja" style={{ padding: "64px 20px" }}>
+      {/* Ribbon marquee */}
+      <div className="rk-ribbon" aria-hidden="true">
+        <div className="rk-ribbon-track">
+          {[...RIBBON_TAGS, ...RIBBON_TAGS].map((t, i) => (
+            <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+              {t} <Sparkles size={12} color={C.gold} />
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Kategori */}
+      <section id="kategori" style={{ padding: "72px 20px 20px" }}>
         <div style={{ maxWidth: 1080, margin: "0 auto" }}>
-          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, marginBottom: 8 }}>Cara kerja</h2>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>Kategori</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0" }}>Rangkaian bunga untuk setiap momen</h2>
+          <p style={{ color: C.inkSoft, marginBottom: 24, fontSize: 15, maxWidth: 640 }}>
+            Dari buket wisuda hingga papan bunga grand opening — semua dibuat segar oleh florist lokal di kotamu.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 16 }}>
+            {CATEGORIES.map((c) => (
+              <button key={c.id} type="button" className="rk-cat-card" onClick={() => openBuilder(c.mode)}>
+                <span className="rk-cat-icon"><c.icon size={20} color={C.maroon} /></span>
+                <div className="rk-serif" style={{ fontSize: 17.5, fontWeight: 700, color: C.ink, marginBottom: 5 }}>{c.nama}</div>
+                <div style={{ fontSize: 13.5, color: C.inkSoft, lineHeight: 1.5 }}>{c.desc}</div>
+                <div style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: C.maroon, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  Mulai rangkai <ChevronRight size={14} />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Cara kerja */}
+      <section id="cara-kerja" style={{ background: C.cream, padding: "64px 20px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>Cara Pesan</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0" }}>Dari rangkai sampai bunga sampai</h2>
           <p style={{ color: C.inkSoft, marginBottom: 28, fontSize: 15 }}>
-            Dari rangkai sampai bunga sampai — dengan pengalihan otomatis bila floris sedang penuh.
+            Enam langkah, dengan pengalihan otomatis bila floris sedang penuh.
           </p>
           <div className="rk-steps-grid">
             {STEPS.map((s) => (
@@ -610,6 +593,33 @@ function Home({ go }) {
                 <div className="rk-serif" style={{ fontSize: 18.5, fontWeight: 700, color: C.maroon, marginBottom: 6 }}>{s.t}</div>
                 <div style={{ fontSize: 14, color: C.inkSoft, lineHeight: 1.55 }}>{s.d}</div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Florist Pilihan */}
+      <section id="florist" style={{ padding: "64px 20px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>Florist Pilihan</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0" }}>Florist terverifikasi minggu ini</h2>
+          <p style={{ color: C.inkSoft, marginBottom: 28, fontSize: 15, maxWidth: 640 }}>
+            Setiap florist di Kalamekar melewati proses kurasi — galeri asli, alamat jelas, dan ulasan pembeli nyata.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
+            {FEATURED_FLORISTS.map((f) => (
+              <button key={f.nama} type="button" className="rk-florist-card" onClick={() => openBuilder()}>
+                <div className="rk-florist-photo" style={{ background: `linear-gradient(135deg, ${f.colors[0]}22, ${f.colors[1]}44, ${f.colors[2]}33)` }}>
+                  <span className="rk-badge"><BadgeCheck size={12} /> Terverifikasi</span>
+                </div>
+                <div style={{ padding: 16, textAlign: "left" }}>
+                  <div className="rk-serif" style={{ fontSize: 16, fontWeight: 700, color: C.ink }}>{f.nama}</div>
+                  <div style={{ fontSize: 12.5, color: C.inkSoft, marginTop: 3 }}>{f.meta}</div>
+                  <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: C.ink, display: "flex", alignItems: "center", gap: 5 }}>
+                    <Star size={13} fill={C.gold} color={C.gold} /> {f.rating} <span style={{ fontWeight: 400, color: C.inkSoft }}>({f.ulasan} ulasan)</span>
+                  </div>
+                </div>
+              </button>
             ))}
           </div>
         </div>
@@ -639,26 +649,124 @@ function Home({ go }) {
         </div>
       </section>
 
-      {/* Untuk floris */}
-      <section style={{ background: C.maroon, color: C.cream, padding: "56px 20px" }}>
+      {/* Kenapa Kalamekar */}
+      <section style={{ padding: "8px 20px 64px" }}>
         <div style={{ maxWidth: 1080, margin: "0 auto" }}>
-          <h2 className="rk-serif" style={{ fontSize: 30, marginBottom: 8 }}>Punya toko bunga? Jadi floris partner.</h2>
-          <p style={{ opacity: 0.85, fontSize: 15, maxWidth: 640, marginBottom: 22, lineHeight: 1.6 }}>
-            Tanpa biaya di muka. Kamu terima 75–85% dari nilai order, pembayaran dilindungi escrow,
-            dan kamu tetap pegang kendali penuh untuk menerima atau menolak order.
-          </p>
-          <div className="rk-arch-grid" style={{ maxWidth: 760 }}>
-            {[
-              [CreditCard, "Escrow & payout otomatis", "Dana pelanggan ditahan platform, diteruskan begitu bunga diterima."],
-              [MessageCircle, "Koordinasi via WhatsApp", "Order masuk lewat WA — tanpa perlu belajar aplikasi baru di fase pilot."],
-            ].map(([Ic, t, d]) => (
-              <div key={t} style={{ background: "rgba(255,255,255,.07)", borderRadius: 14, padding: 18, display: "flex", gap: 14 }}>
-                <Ic size={22} style={{ color: C.goldSoft, flexShrink: 0, marginTop: 2 }} />
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 4 }}>{t}</div>
-                  <div style={{ fontSize: 13.5, opacity: 0.8, lineHeight: 1.5 }}>{d}</div>
-                </div>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>Kenapa Kalamekar</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0 32px" }}>Cara paling tenang mengirim bunga</h2>
+          <div className="rk-arch-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+            {KENAPA_FEATURES.map(([Ic, t, d]) => (
+              <div key={t}>
+                <span style={{ width: 44, height: 44, borderRadius: "50%", background: C.roseSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Ic size={20} color={C.maroon} />
+                </span>
+                <div className="rk-serif" style={{ fontSize: 17, fontWeight: 700, color: C.ink, margin: "10px 0 4px" }}>{t}</div>
+                <div style={{ fontSize: 13.5, color: C.inkSoft, lineHeight: 1.55 }}>{d}</div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Jangkauan kota */}
+      <section id="kota" style={{ background: C.cream, padding: "64px 20px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>Jangkauan Kami</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0" }}>Toko bunga di kota-kota Indonesia</h2>
+          <p style={{ color: C.inkSoft, marginBottom: 24, fontSize: 15, maxWidth: 640 }}>
+            Pilih kotamu untuk melihat daftar florist lokal, harga, dan estimasi pengiriman.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {CITIES.map((c) => c.live ? (
+              <button key={c.nama} type="button" className="rk-link-chip rk-link-chip-active" onClick={() => openBuilder()}>
+                <MapPin size={13} /> {c.nama} <span style={{ fontSize: 11, color: C.tealDeep, fontWeight: 700 }}>· aktif</span>
+              </button>
+            ) : (
+              <span key={c.nama} className="rk-link-chip" style={{ opacity: 0.7 }}>
+                <MapPin size={13} /> {c.nama} <span style={{ fontSize: 11 }}>· segera</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Berdasarkan momen */}
+      <section style={{ padding: "64px 20px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>Berdasarkan Momen</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0" }}>Bunga untuk setiap kesempatan</h2>
+          <p style={{ color: C.inkSoft, marginBottom: 24, fontSize: 15, maxWidth: 640 }}>
+            Rangkaian yang tepat untuk setiap momen — dipandu florist berpengalaman.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+            {OCCASIONS.map((o) => (
+              <button key={o.nama} type="button" className="rk-link-chip rk-link-chip-active" style={{ justifyContent: "space-between" }} onClick={() => openBuilder(o.mode)}>
+                {o.nama} <ChevronRight size={14} />
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Untuk floris */}
+      <section id="untuk-floris" style={{ padding: "8px 20px 64px" }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <div className="rk-join-card">
+            <h2 className="rk-serif" style={{ fontSize: 28, color: "#fff", marginBottom: 10 }}>
+              Punya toko bunga? Saatnya <em style={{ fontStyle: "normal", color: C.goldSoft }}>mekar</em> bersama kami.
+            </h2>
+            <p style={{ opacity: 0.85, fontSize: 15, maxWidth: 560, marginBottom: 20, lineHeight: 1.6 }}>
+              Buka etalase online gratis, jangkau pembeli baru di kotamu, dan terima pesanan langsung ke WhatsApp —
+              tanpa perlu bikin website sendiri.
+            </p>
+            <div style={{ display: "grid", gap: 10, marginBottom: 26, maxWidth: 520 }}>
+              {[
+                "Pendaftaran gratis, verifikasi 2–3 hari kerja",
+                "Etalase dengan galeri, harga, dan ulasan pembeli",
+                "Pesanan masuk langsung ke WhatsApp tokomu",
+              ].map((t) => (
+                <div key={t} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14.5 }}>
+                  <Check size={17} style={{ color: C.goldSoft, flexShrink: 0, marginTop: 3 }} />
+                  {t}
+                </div>
+              ))}
+            </div>
+            {ADMIN_WA ? (
+              <a
+                className="rk-btn"
+                style={{ background: C.gold, color: C.maroonDeep, padding: "13px 24px", fontSize: 14.5, textDecoration: "none", display: "inline-flex" }}
+                href={"https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent("Halo Kalamekar, saya ingin mendaftarkan toko bunga saya sebagai floris partner.")}
+                target="_blank" rel="noreferrer"
+              >
+                <MessageCircle size={17} /> Daftar via WhatsApp
+              </a>
+            ) : (
+              <a
+                className="rk-btn"
+                style={{ background: C.gold, color: C.maroonDeep, padding: "13px 24px", fontSize: 14.5, textDecoration: "none", display: "inline-flex" }}
+                href="mailto:halo@kalamekar.id"
+              >
+                <MessageCircle size={17} /> Daftar Sebagai Floris
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" style={{ padding: "8px 20px 80px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <span className="rk-eyebrow" style={{ color: C.maroon }}>FAQ</span>
+          <h2 className="rk-serif" style={{ fontSize: 32, color: C.maroon, margin: "8px 0 24px" }}>Pertanyaan yang sering diajukan</h2>
+          <div>
+            {FAQS.map((f) => (
+              <details key={f.q} className="rk-faq-item">
+                <summary>
+                  {f.q}
+                  <svg className="rk-faq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                </summary>
+                <p className="rk-faq-answer">{f.a}</p>
+              </details>
             ))}
           </div>
         </div>
@@ -1187,22 +1295,29 @@ export default function KalamekarApp() {
   const [order, setOrder] = useState(null);
 
   const go = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+  const goSection = (id) => { go("home"); setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }), 60); };
 
   return (
     <div className="rk-root">
       <GlobalStyle />
       {/* Nav */}
-      <header style={{ background: C.maroonDeep, position: "sticky", top: 0, zIndex: 50, boxShadow: "0 2px 12px rgba(71,23,40,.35)" }}>
+      <header style={{ background: "rgba(255,255,255,.92)", backdropFilter: "blur(8px)", position: "sticky", top: 0, zIndex: 50, borderBottom: `1px solid ${C.line}` }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "12px 18px", display: "flex", alignItems: "center", gap: 18 }}>
           <button onClick={() => go("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 9 }}>
-            <span style={{ width: 34, height: 34, borderRadius: "50%", background: C.rose, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Leaf size={17} color={C.maroonDeep} />
+            <span style={{ width: 34, height: 34, borderRadius: "50%", background: C.roseSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Leaf size={17} color={C.maroon} />
             </span>
-            <span className="rk-serif" style={{ color: C.cream, fontSize: 20, fontWeight: 700, letterSpacing: 0.4 }}>Kalamekar</span>
+            <span className="rk-serif" style={{ color: C.maroonDeep, fontSize: 20, fontWeight: 700, letterSpacing: 0.4 }}>Kalamekar</span>
           </button>
           <nav style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
-            <button className="rk-navlink rk-hide-sm" onClick={() => go("home")}>Beranda</button>
-            <button className="rk-navlink rk-hide-sm" onClick={() => { go("home"); setTimeout(() => document.getElementById("cara-kerja")?.scrollIntoView({ behavior: "smooth" }), 60); }}>Cara kerja</button>
+            <button className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => go("home")}>Beranda</button>
+            <button className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => goSection("kategori")}>Kategori</button>
+            <button className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => goSection("florist")}>Florist</button>
+            <button className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => goSection("cara-kerja")}>Cara kerja</button>
+            <button className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => goSection("faq")}>FAQ</button>
+            <button className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "8px 16px", fontSize: 13.5 }} onClick={() => goSection("untuk-floris")}>
+              Untuk Florist
+            </button>
             <button className="rk-btn" style={{ background: C.gold, color: C.maroonDeep, padding: "9px 18px", fontSize: 14 }} onClick={() => go("builder")}>
               <Flower2 size={16} /> Rangkai
             </button>
@@ -1210,20 +1325,49 @@ export default function KalamekarApp() {
         </div>
       </header>
 
-      {page === "home" && <Home go={go} />}
+      {page === "home" && <Home go={go} setDesign={setDesign} />}
       {page === "builder" && <Builder design={design} setDesign={setDesign} go={go} />}
       {page === "checkout" && <Checkout design={design} go={go} setOrder={setOrder} />}
       {page === "tracking" && order && <Tracking design={design} order={order} go={go} />}
 
-      <footer style={{ background: C.maroonDeep, color: C.cream, padding: "28px 20px", marginTop: 10 }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "space-between", alignItems: "center" }}>
-          <div>
-            <span className="rk-serif" style={{ fontSize: 18, fontWeight: 700 }}>Kalamekar</span>
-            <span style={{ opacity: 0.6, fontSize: 12.5, marginLeft: 10 }}>Marketplace floris dengan custom bouquet builder</span>
+      <footer style={{ background: "#122B1C", color: "#B9C9BB", padding: "44px 20px 24px", marginTop: 10 }}>
+        <div style={{ maxWidth: 1080, margin: "0 auto" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 32, justifyContent: "space-between", paddingBottom: 26, borderBottom: "1px solid rgba(255,255,255,.12)" }}>
+            <div style={{ maxWidth: 320 }}>
+              <span className="rk-serif" style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>Kalamekar</span>
+              <p style={{ opacity: 0.85, fontSize: 13, marginTop: 10, lineHeight: 1.6 }}>
+                Marketplace florist lokal Indonesia dengan kanvas rangkai custom — susun sendiri, floris partner
+                yang merakit dan mengirimkan.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", marginBottom: 12 }}>Jelajahi</div>
+                <div style={{ display: "grid", gap: 9, fontSize: 13.5 }}>
+                  <button className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("kategori")}>Kategori</button>
+                  <button className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("florist")}>Florist Pilihan</button>
+                  <button className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("cara-kerja")}>Cara kerja</button>
+                  <button className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("faq")}>FAQ</button>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", marginBottom: 12 }}>Untuk Floris</div>
+                <div style={{ display: "grid", gap: 9, fontSize: 13.5 }}>
+                  <button className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("untuk-floris")}>Gabung sebagai partner</button>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", marginBottom: 12 }}>Sosial</div>
+                <div style={{ display: "grid", gap: 9, fontSize: 13.5 }}>
+                  <a className="rk-navlink rk-navlink-ondark" href="https://www.instagram.com/kalamekar.id" target="_blank" rel="noreferrer">Instagram</a>
+                  <a className="rk-navlink rk-navlink-ondark" href="https://www.tiktok.com/@kalamekar.id" target="_blank" rel="noreferrer">TikTok</a>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style={{ fontSize: 12, opacity: 0.65, maxWidth: 420, lineHeight: 1.5 }}>
-            Pilot Fase 1 — order dikoordinasikan manual oleh tim kami bersama floris partner via WhatsApp,
-            supaya kualitas terjaga sebelum semuanya otomatis.
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, paddingTop: 18, fontSize: 12.5, opacity: 0.65 }}>
+            <span>© {new Date().getFullYear()} Kalamekar. Seluruh hak cipta dilindungi.</span>
+            <span>Pilot Fase 1 — order dikoordinasikan manual bersama floris partner via WhatsApp.</span>
           </div>
         </div>
       </footer>
