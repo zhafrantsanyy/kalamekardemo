@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { FLOWERS, FMAP, rupiah } from "@/lib/catalog";
-import { BUILDER_URL } from "@/lib/builderUrl";
+import { BUILDER_URL } from "@kalamekar/shared/tokens";
 import Thumb from "@/components/Thumb";
 import HeroSearch from "@/components/HeroSearch";
 import ScrollReveal from "@/components/ScrollReveal";

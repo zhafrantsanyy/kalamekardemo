@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Leaf, Flower2, Menu, X } from "lucide-react";
-import { BUILDER_URL } from "@/lib/builderUrl";
+import { BUILDER_URL } from "@kalamekar/shared/tokens";
 
 export default function Navbar() {
   const pathname = usePathname();

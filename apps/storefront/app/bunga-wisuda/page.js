@@ -1,5 +1,5 @@
 import { GraduationCap, Wand2, Truck, ShieldCheck } from "lucide-react";
-import { BUILDER_URL } from "@/lib/builderUrl";
+import { BUILDER_URL } from "@kalamekar/shared/tokens";
 
 export const metadata = {
   title: "Bunga Wisuda",

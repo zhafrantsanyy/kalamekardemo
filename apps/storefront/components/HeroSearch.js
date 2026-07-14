@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { SIZES } from "@/lib/catalog";
-import { BUILDER_URL } from "@/lib/builderUrl";
+import { BUILDER_URL } from "@kalamekar/shared/tokens";
 
 const CATEGORIES = [
   { id: "hand-bouquet", nama: "Hand Bouquet" },

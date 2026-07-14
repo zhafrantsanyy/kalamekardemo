@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin, ShieldCheck, Route, MessageCircle, ChevronRight } from "lucide-react";
-import { BUILDER_URL } from "@/lib/builderUrl";
+import { BUILDER_URL } from "@kalamekar/shared/tokens";
 
 const CITIES = {
   jakarta: { nama: "Jakarta", provinsi: "DKI Jakarta" },
