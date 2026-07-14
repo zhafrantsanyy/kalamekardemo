@@ -10,6 +10,9 @@ importers:
 
   apps/builder:
     dependencies:
+      '@kalamekar/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@supabase/supabase-js':
         specifier: ^2.45.0
         version: 2.110.3
@@ -35,6 +38,9 @@ importers:
 
   apps/storefront:
     dependencies:
+      '@kalamekar/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@supabase/supabase-js':
         specifier: ^2.110.3
         version: 2.110.3
@@ -57,6 +63,8 @@ importers:
       eslint-config-next:
         specifier: 16.2.10
         version: 16.2.10(@typescript-eslint/parser@8.64.0(eslint@9.39.5)(typescript@6.0.3))(eslint@9.39.5)(typescript@6.0.3)
+
+  packages/shared: {}
 
 packages:
 
