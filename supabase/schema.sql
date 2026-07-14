@@ -59,6 +59,44 @@ create policy "anon dapat membuat pesanan"
 -- Sengaja TIDAK ada policy select/update/delete untuk anon.
 
 -- ============================================================
+-- Tabel produk: katalog rangkaian siap pesan (dipakai halaman
+-- /produk, /produk/:slug, dan "Produk Unggulan" di beranda).
+-- ============================================================
+create table if not exists public.products (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+
+  slug        text not null unique,
+  nama        text not null,
+  deskripsi   text,
+  harga       integer not null,
+  image_url   text,
+
+  -- kontrol tayang: set false untuk sembunyikan tanpa menghapus baris
+  aktif       boolean not null default true
+);
+
+create index if not exists products_slug_idx   on public.products (slug);
+create index if not exists products_aktif_idx  on public.products (aktif);
+
+-- ------------------------------------------------------------
+-- Row Level Security:
+-- katalog produk bersifat publik untuk dibaca (anon key),
+-- tapi hanya bisa ditambah/diubah/dihapus lewat Supabase
+-- Dashboard (Table Editor) — bukan dari frontend.
+-- ------------------------------------------------------------
+alter table public.products enable row level security;
+
+drop policy if exists "anon dapat membaca produk aktif" on public.products;
+create policy "anon dapat membaca produk aktif"
+  on public.products
+  for select
+  to anon
+  using (aktif = true);
+
+-- Sengaja TIDAK ada policy insert/update/delete untuk anon.
+
+-- ============================================================
 -- OPSIONAL — Fondasi Fase 2 (Otomasi). Belum dipakai frontend,
 -- tapi aman dijalankan sekarang bila ingin siap-siap.
 -- ============================================================
