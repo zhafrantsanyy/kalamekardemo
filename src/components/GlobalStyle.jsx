@@ -4,6 +4,7 @@ export default function GlobalStyle() {
   return (
     <style>{`
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     .rk-root { font-family: ${sans}; color: ${C.ink}; background: ${C.card}; min-height: 100vh; }
     .rk-serif { font-family: ${serif}; }
     .rk-btn { border: none; cursor: pointer; font-family: ${sans}; font-weight: 600; border-radius: 999px;
@@ -122,6 +123,33 @@ export default function GlobalStyle() {
     /* ---------- about page ---------- */
     .rk-founder-card { border:1px solid ${C.line}; border-radius:20px; overflow:hidden; background:#fff; transition:transform .15s, border-color .15s; }
     .rk-founder-card:hover { transform:translateY(-3px); border-color:${C.maroon}; }
+
+    /* ---------- kategori page ---------- */
+    .rk-jump-pill { padding:8px 16px; border-radius:999px; border:1px solid ${C.line}; background:#fff; cursor:pointer;
+      font-family:${sans}; font-size:13.5px; font-weight:600; color:${C.maroonDeep}; transition:border-color .15s, color .15s; }
+    .rk-jump-pill:hover { border-color:${C.maroon}; color:${C.maroon}; }
+    .rk-kat-card { border:1px solid ${C.line}; border-radius:20px; background:#fff; overflow:hidden;
+      display:grid; grid-template-columns:300px 1fr; }
+    .rk-kat-card.is-even{ grid-template-columns:1fr 300px; }
+    .rk-kat-card.is-even .rk-kat-visual{ order:2; }
+    .rk-kat-visual { position:relative; min-height:260px; }
+    .rk-kat-visual svg { width:100%; height:100%; position:absolute; inset:0; }
+    .rk-kat-chip { display:inline-block; padding:6px 14px; border-radius:999px; font-size:13px; font-weight:600;
+      background:${C.roseSoft}; color:${C.bloomDark}; border:none; cursor:default; font-family:${sans}; }
+    .rk-kat-chip-link { cursor:pointer; transition:background .15s; }
+    .rk-kat-chip-link:hover { background:#F5DCE7; }
+    .rk-kat-chip-leaf { background:${C.cream}; color:${C.maroonDeep}; }
+    .rk-occ-card { background:#fff; border:1px solid ${C.line}; border-radius:14px; padding:24px; width:100%;
+      text-align:left; cursor:pointer; font-family:${sans}; transition:transform .15s, border-color .15s; }
+    .rk-occ-card:hover { transform:translateY(-3px); border-color:${C.maroon}; }
+    .rk-flower-card { border:1px solid ${C.line}; border-radius:14px; padding:24px; background:#fff;
+      transition:transform .15s, border-color .15s; }
+    .rk-flower-card:hover { transform:translateY(-3px); border-color:${C.teal}; }
+    @media (max-width:960px) {
+      .rk-kat-card, .rk-kat-card.is-even { grid-template-columns:1fr; }
+      .rk-kat-card.is-even .rk-kat-visual { order:0; }
+      .rk-kat-visual { min-height:180px; }
+    }
   `}</style>
   );
 }

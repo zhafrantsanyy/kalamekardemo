@@ -28,7 +28,7 @@ export default function Footer() {
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", marginBottom: 12 }}>Jelajahi</div>
               <div style={{ display: "grid", gap: 9, fontSize: 13.5 }}>
-                <button type="button" className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("kategori")}>Kategori</button>
+                <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} to="/kategori">Kategori</Link>
                 <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} to="/produk">Produk</Link>
                 <button type="button" className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("cara-kerja")}>Cara kerja</button>
                 <button type="button" className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("faq")}>FAQ</button>

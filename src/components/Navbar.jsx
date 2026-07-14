@@ -34,7 +34,7 @@ export default function Navbar() {
         </Link>
         <nav style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
           <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/")} to="/">Beranda</Link>
-          <button type="button" className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => goSection("kategori")}>Kategori</button>
+          <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/kategori")} to="/kategori" aria-current={isActive("/kategori") ? "page" : undefined}>Kategori</Link>
           <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/produk")} to="/produk">Produk</Link>
           <button type="button" className="rk-navlink rk-navlink-onlight rk-hide-sm" onClick={() => goSection("cara-kerja")}>Cara kerja</button>
           <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/tentang")} to="/tentang" aria-current={isActive("/tentang") ? "page" : undefined}>Tentang</Link>
@@ -59,7 +59,7 @@ export default function Navbar() {
         {mobileOpen && (
           <div className="rk-nav-mobile">
             <Link className="rk-navlink rk-navlink-onlight" style={activeStyle("/")} to="/" onClick={() => setMobileOpen(false)}>Beranda</Link>
-            <button type="button" className="rk-navlink rk-navlink-onlight" style={{ textAlign: "left" }} onClick={() => goSection("kategori")}>Kategori</button>
+            <Link className="rk-navlink rk-navlink-onlight" style={activeStyle("/kategori")} to="/kategori" aria-current={isActive("/kategori") ? "page" : undefined} onClick={() => setMobileOpen(false)}>Kategori</Link>
             <Link className="rk-navlink rk-navlink-onlight" style={activeStyle("/produk")} to="/produk" onClick={() => setMobileOpen(false)}>Produk</Link>
             <button type="button" className="rk-navlink rk-navlink-onlight" style={{ textAlign: "left" }} onClick={() => goSection("cara-kerja")}>Cara kerja</button>
             <Link className="rk-navlink rk-navlink-onlight" style={activeStyle("/tentang")} to="/tentang" aria-current={isActive("/tentang") ? "page" : undefined} onClick={() => setMobileOpen(false)}>Tentang</Link>
