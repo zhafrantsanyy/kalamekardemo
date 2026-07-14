@@ -49,11 +49,21 @@ export default function GlobalStyle() {
       .rk-price-col { order: 3; }
       .rk-pal-scroll { display:grid; grid-template-columns: repeat(auto-fill,minmax(86px,1fr)); }
     }
+    .rk-nav-toggle { display:none; background:none; border:none; cursor:pointer; padding:6px; align-items:center; justify-content:center; }
+    .rk-nav-mobile { display:none; }
     @media (max-width: 760px) {
       .rk-steps-grid { grid-template-columns: 1fr; }
       .rk-arch-grid { grid-template-columns: 1fr; }
       .rk-hero-title { font-size: 34px !important; }
       .rk-hide-sm { display:none !important; }
+      .rk-nav-toggle { display:flex; }
+      .rk-nav-mobile {
+        display:flex; flex-direction:column; gap:4px;
+        position:absolute; top:100%; left:0; right:0; background:#fff;
+        border-bottom:1px solid ${C.line}; box-shadow:0 12px 24px -18px rgba(28,42,32,.35);
+        padding:16px 18px;
+      }
+      .rk-nav-mobile .rk-navlink { padding:10px 2px; font-size:15.5px; }
     }
     @keyframes rk-spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
     @keyframes rk-float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-8px);} }
@@ -108,6 +118,10 @@ export default function GlobalStyle() {
     .rk-faq-chev { width:18px; height:18px; flex:none; transition:transform .2s; color:${C.gold}; }
     .rk-faq-item[open] .rk-faq-chev { transform:rotate(45deg); }
     .rk-faq-answer { padding:0 2px 22px; color:${C.inkSoft}; font-size:14.5px; line-height:1.6; }
+
+    /* ---------- about page ---------- */
+    .rk-founder-card { border:1px solid ${C.line}; border-radius:20px; overflow:hidden; background:#fff; transition:transform .15s, border-color .15s; }
+    .rk-founder-card:hover { transform:translateY(-3px); border-color:${C.maroon}; }
   `}</style>
   );
 }

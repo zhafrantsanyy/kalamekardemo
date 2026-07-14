@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { CartProvider } from "./context/CartContext";
 import Home from "./pages/Home";
+import About from "./pages/About";
 import ProductList from "./pages/ProductList";
 import ProductDetail from "./pages/ProductDetail";
 import BouquetBuilder from "./pages/BouquetBuilder";
@@ -26,6 +27,7 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/tentang" element={<About />} />
           <Route path="/produk" element={<ProductList />} />
           <Route path="/produk/:slug" element={<ProductDetail />} />
           <Route path="/builder" element={<BouquetBuilder />} />

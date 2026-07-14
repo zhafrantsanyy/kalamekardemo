@@ -35,8 +35,9 @@ export default function Footer() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", marginBottom: 12 }}>Untuk Floris</div>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", color: "#fff", marginBottom: 12 }}>Perusahaan</div>
               <div style={{ display: "grid", gap: 9, fontSize: 13.5 }}>
+                <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} to="/tentang">Tentang Kami</Link>
                 <button type="button" className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} onClick={() => goSection("untuk-floris")}>Gabung sebagai partner</button>
               </div>
             </div>
