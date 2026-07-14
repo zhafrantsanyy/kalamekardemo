@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kalamekar-builder",
+      "runtimeExecutable": "C:\\PROGRA~1\\nodejs\\node.exe",
+      "runtimeArgs": ["apps/builder/node_modules/vite/bin/vite.js", "apps/builder"],
+      "port": 5173
+    },
+    {
+      "name": "kalamekar-storefront",
+      "runtimeExecutable": "C:\\PROGRA~1\\nodejs\\node.exe",
+      "runtimeArgs": ["apps/storefront/node_modules/next/dist/bin/next", "dev", "apps/storefront"],
+      "port": 3000
+    }
+  ]
+}

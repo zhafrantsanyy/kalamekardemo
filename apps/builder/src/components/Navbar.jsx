@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Leaf, Flower2, ShoppingBag, Menu, X } from "lucide-react";
 import { C } from "../lib/theme";
 import { useCart } from "../context/CartContext";
+import { STOREFRONT_URL } from "../lib/storefrontUrl";
 
 export default function Navbar() {
   const location = useLocation();
@@ -26,12 +27,12 @@ export default function Navbar() {
   return (
     <header style={{ background: "rgba(255,255,255,.92)", backdropFilter: "blur(8px)", position: "sticky", top: 0, zIndex: 50, borderBottom: `1px solid ${C.line}` }}>
       <div style={{ maxWidth: 1180, margin: "0 auto", padding: "12px 18px", display: "flex", alignItems: "center", gap: 18, position: "relative" }}>
-        <Link to="/" onClick={() => setMobileOpen(false)} style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
+        <a href={STOREFRONT_URL} style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
           <span style={{ width: 34, height: 34, borderRadius: "50%", background: C.roseSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Leaf size={17} color={C.maroon} />
           </span>
           <span className="rk-serif" style={{ color: C.maroonDeep, fontSize: 20, fontWeight: 700, letterSpacing: 0.4 }}>Kalamekar</span>
-        </Link>
+        </a>
         <nav style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
           <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/")} to="/">Beranda</Link>
           <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/kategori")} to="/kategori" aria-current={isActive("/kategori") ? "page" : undefined}>Kategori</Link>
