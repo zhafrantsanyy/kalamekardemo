@@ -1,4 +1,6 @@
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -37,7 +39,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="id" className={`${bricolageGrotesque.variable} ${plusJakartaSans.variable}`}>
-      <body className="rk-root">{children}</body>
+      <body className="rk-root">
+        <Navbar />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
