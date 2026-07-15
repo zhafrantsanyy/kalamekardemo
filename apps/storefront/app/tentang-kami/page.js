@@ -3,15 +3,15 @@ import { Eye, Target, Check, ShieldCheck, Heart, List, TrendingUp } from "lucide
 import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata = {
-  title: "Tentang Kami",
+  title: { absolute: "Tentang Kalamekar — Platform Florist Terpercaya Indonesia" },
   description:
     "Kalamekar lahir dari keyakinan sederhana: di balik setiap momen penting orang Indonesia, ada florist lokal yang layak ditemukan. Kenali cerita, visi-misi, dan pendiri Kalamekar.",
-  alternates: { canonical: "/tentang" },
+  alternates: { canonical: "/tentang-kami" },
   openGraph: {
     title: "Tentang Kalamekar",
     description:
       "Kalamekar menghubungkan florist lokal Indonesia dengan pembeli — kenali cerita, visi-misi, dan pendiri di baliknya.",
-    url: "https://kalamekar.id/tentang",
+    url: "https://kalamekar.id/tentang-kami",
     type: "website",
   },
 };
@@ -62,7 +62,7 @@ const aboutPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
   name: "Tentang Kalamekar",
-  url: "https://kalamekar.id/tentang",
+  url: "https://kalamekar.id/tentang-kami",
   description:
     "Kalamekar lahir dari keyakinan sederhana: di balik setiap momen penting orang Indonesia, ada florist lokal yang layak ditemukan.",
   mainEntity: {
@@ -306,13 +306,13 @@ export default function About() {
               Temukan florist terbaik di kotamu, atau daftarkan toko bungamu dan jangkau ribuan pembeli baru.
             </p>
             <div style={{ marginTop: 32, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
-              <Link className="rk-btn" style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", textDecoration: "none" }} href="/">
+              <Link className="rk-btn" style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", textDecoration: "none" }} href="/toko-bunga">
                 Cari Florist di Kotamu
               </Link>
               <Link
                 className="rk-btn"
                 style={{ background: "transparent", color: "#fff", border: "1.5px solid rgba(255,255,255,.5)", textDecoration: "none" }}
-                href="/#untuk-floris"
+                href="/untuk-florist"
               >
                 Gabung Sebagai Florist
               </Link>

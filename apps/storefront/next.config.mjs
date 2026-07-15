@@ -8,6 +8,11 @@ const nextConfig = {
   turbopack: {
     root: path.join(__dirname, "..", ".."),
   },
+  async redirects() {
+    return [
+      { source: "/tentang", destination: "/tentang-kami", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -14,14 +14,14 @@ import ScrollReveal from "@/components/ScrollReveal";
 const ADMIN_WA = "6287720742631";
 
 export const metadata = {
-  title: "Kalamekar — Marketplace Florist Lokal Indonesia",
+  title: "Kalamekar — Toko Bunga Online & Direktori Florist Terpercaya",
   description:
-    "Kalamekar menghubungkan Anda dengan ratusan florist lokal terverifikasi di 25+ kota — hand bouquet, papan bunga, hingga dekorasi pernikahan. Susun sendiri lewat kanvas drag-and-drop kami, pesan langsung, dikirim di hari yang sama.",
+    "Temukan florist terverifikasi di kotamu atau desain buket sendiri. Pesan mudah lewat WhatsApp, kirim bunga hari ini juga.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Kalamekar — Marketplace Florist Lokal Indonesia",
+    title: "Kalamekar — Toko Bunga Online & Direktori Florist Terpercaya",
     description:
-      "Temukan toko bunga & florist terpercaya di kotamu. Ratusan florist lokal terverifikasi di 25+ kota Indonesia.",
+      "Temukan florist terverifikasi di kotamu atau desain buket sendiri. Pesan mudah lewat WhatsApp, kirim bunga hari ini juga.",
     url: "https://kalamekar.id",
     type: "website",
   },
@@ -46,28 +46,21 @@ const CATEGORIES = [
 ];
 
 const OCCASIONS = [
-  { nama: "Bunga Wisuda", href: "/bunga-wisuda" },
-  { nama: "Bunga Duka Cita", href: BUILDER_URL },
-  { nama: "Papan Bunga Pernikahan", href: BUILDER_URL },
-  { nama: "Bunga Anniversary", href: BUILDER_URL },
-  { nama: "Papan Bunga Grand Opening", href: "/papan-bunga-grand-opening" },
-  { nama: "Bunga Ulang Tahun", href: BUILDER_URL },
-  { nama: "Bunga Valentine", href: BUILDER_URL },
-  { nama: "Bunga untuk Ibu", href: BUILDER_URL },
+  { nama: "Bunga Wisuda", desc: "Rayakan wisuda dengan rangkaian bunga istimewa.", href: "/bunga-wisuda" },
+  { nama: "Bunga Ulang Tahun", desc: "Buket ulang tahun yang bikin harinya makin berkesan.", href: "/bunga-ulang-tahun" },
+  { nama: "Papan Bunga Grand Opening", desc: "Ucapan sukses pembukaan usaha, kirim di hari yang sama.", href: "/papan-bunga-grand-opening" },
+  { nama: "Papan Bunga Duka Cita", desc: "Sampaikan belasungkawa lewat rangkaian yang layak dan sopan.", href: "/bunga-duka-cita" },
+  { nama: "Bunga Anniversary", desc: "Rayakan hari jadi bersama pasangan atau orang terkasih.", href: "/bunga-anniversary" },
+  { nama: "Bunga Valentine", desc: "Ungkapkan cinta lewat buket valentine yang dirangkai segar.", href: "/bunga-valentine" },
 ];
 
 const CITIES = [
-  { nama: "Jakarta", slug: "jakarta", live: true },
-  { nama: "Bandung", slug: "bandung", live: true },
-  { nama: "Surabaya", slug: "surabaya", live: true },
-  { nama: "Yogyakarta", slug: "yogyakarta", live: true },
-  { nama: "Medan", slug: "medan", live: true },
-  { nama: "Semarang", live: false },
-  { nama: "Denpasar", live: false },
-  { nama: "Makassar", live: false },
-  { nama: "Tangerang", live: false },
-  { nama: "Bekasi", live: false },
-  { nama: "Bogor", live: false },
+  { nama: "Jakarta", slug: "jakarta", desc: "Florist terverifikasi di Jakarta, siap kirim same-day." },
+  { nama: "Surabaya", slug: "surabaya", desc: "Florist terverifikasi di Surabaya." },
+  { nama: "Bandung", slug: "bandung", desc: "Florist terverifikasi di Bandung." },
+  { nama: "Medan", slug: "medan", desc: "Florist terverifikasi di Medan." },
+  { nama: "Yogyakarta", slug: "yogyakarta", desc: "Florist terverifikasi di Yogyakarta." },
+  { nama: "Makassar", slug: "makassar", desc: "Florist terverifikasi di Makassar." },
 ];
 
 const RIBBON_TAGS = ["Bunga Wisuda", "Papan Bunga Pernikahan", "Bunga Duka Cita", "Grand Opening", "Anniversary", "Hand Bouquet Valentine"];
@@ -224,6 +217,15 @@ export default async function Home() {
 
             <HeroSearch />
 
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 18 }}>
+              <Link className="rk-btn rk-btn-primary" style={{ padding: "13px 24px", fontSize: 14.5, textDecoration: "none" }} href="/toko-bunga">
+                Cari Florist
+              </Link>
+              <a className="rk-btn rk-btn-ghost" style={{ padding: "13px 24px", fontSize: 14.5, textDecoration: "none" }} href={BUILDER_URL}>
+                Desain Buket Sendiri
+              </a>
+            </div>
+
             <div style={{ marginTop: 18, display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", fontSize: 13.5, color: "var(--rk-ink-soft)" }}>
               Populer:
               {OCCASIONS.slice(0, 4).map((o) => (
@@ -306,6 +308,11 @@ export default async function Home() {
               </ScrollReveal>
             ))}
           </div>
+          <div style={{ textAlign: "center", marginTop: 28 }}>
+            <Link href="/cara-pesan" className="rk-navlink rk-navlink-onlight" style={{ fontWeight: 700, color: "var(--rk-maroon)" }}>
+              Lihat panduan lengkap cara pesan →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -387,16 +394,20 @@ export default async function Home() {
           <p style={{ color: "var(--rk-ink-soft)", marginBottom: 24, fontSize: 15, maxWidth: 640 }}>
             Pilih kotamu untuk melihat daftar florist lokal, harga, dan estimasi pengiriman.
           </p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {CITIES.map((c) => c.live ? (
-              <Link key={c.nama} href={`/toko-bunga/${c.slug}`} className="rk-link-chip rk-link-chip-active">
-                <MapPin size={13} /> {c.nama} <span style={{ fontSize: 11, color: "var(--rk-teal-deep)", fontWeight: 700 }}>· aktif</span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+            {CITIES.map((c) => (
+              <Link key={c.nama} href={`/toko-bunga/${c.slug}`} className="rk-card" style={{ display: "block", padding: 18, textDecoration: "none" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "var(--rk-ink)" }}>
+                  <MapPin size={14} color="var(--rk-maroon)" /> {c.nama}
+                </div>
+                <div style={{ fontSize: 13, color: "var(--rk-ink-soft)", marginTop: 6, lineHeight: 1.5 }}>{c.desc}</div>
               </Link>
-            ) : (
-              <span key={c.nama} className="rk-link-chip" style={{ opacity: 0.7 }}>
-                <MapPin size={13} /> {c.nama} <span style={{ fontSize: 11 }}>· segera</span>
-              </span>
             ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <Link href="/toko-bunga" className="rk-navlink rk-navlink-onlight" style={{ fontWeight: 700, color: "var(--rk-maroon)" }}>
+              Lihat semua kota →
+            </Link>
           </div>
         </div>
       </section>
@@ -409,12 +420,20 @@ export default async function Home() {
           <p style={{ color: "var(--rk-ink-soft)", marginBottom: 24, fontSize: 15, maxWidth: 640 }}>
             Rangkaian yang tepat untuk setiap momen — dipandu florist berpengalaman.
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 14 }}>
             {OCCASIONS.map((o) => (
-              <Link key={o.nama} href={o.href} className="rk-link-chip rk-link-chip-active" style={{ justifyContent: "space-between" }}>
-                {o.nama} <ChevronRight size={14} />
+              <Link key={o.nama} href={o.href} className="rk-card" style={{ display: "block", padding: 18, textDecoration: "none" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontWeight: 700, color: "var(--rk-ink)" }}>
+                  {o.nama} <ChevronRight size={14} color="var(--rk-maroon)" />
+                </div>
+                <div style={{ fontSize: 13, color: "var(--rk-ink-soft)", marginTop: 6, lineHeight: 1.5 }}>{o.desc}</div>
               </Link>
             ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <Link href="/momen" className="rk-navlink rk-navlink-onlight" style={{ fontWeight: 700, color: "var(--rk-maroon)" }}>
+              Lihat semua momen →
+            </Link>
           </div>
         </div>
       </section>
@@ -442,14 +461,19 @@ export default async function Home() {
                 </div>
               ))}
             </div>
-            <a
-              className="rk-btn"
-              style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "13px 24px", fontSize: 14.5, textDecoration: "none", display: "inline-flex" }}
-              href={"https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent("Halo Kalamekar, saya ingin mendaftarkan toko bunga saya sebagai floris partner.")}
-              target="_blank" rel="noreferrer"
-            >
-              <MessageCircle size={17} /> Daftar via WhatsApp
-            </a>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+              <a
+                className="rk-btn"
+                style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "13px 24px", fontSize: 14.5, textDecoration: "none", display: "inline-flex" }}
+                href={"https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent("Halo Kalamekar, saya ingin mendaftarkan toko bunga saya sebagai floris partner.")}
+                target="_blank" rel="noreferrer"
+              >
+                <MessageCircle size={17} /> Daftar via WhatsApp
+              </a>
+              <Link href="/untuk-florist" style={{ color: "var(--rk-gold-soft)", fontWeight: 700, fontSize: 14 }}>
+                Pelajari selengkapnya →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -469,6 +493,11 @@ export default async function Home() {
                 <p className="rk-faq-answer">{f.a}</p>
               </details>
             ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <Link href="/faq" className="rk-navlink rk-navlink-onlight" style={{ fontWeight: 700, color: "var(--rk-maroon)" }}>
+              Lihat FAQ lengkap →
+            </Link>
           </div>
         </div>
       </section>

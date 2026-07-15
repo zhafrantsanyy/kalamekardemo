@@ -3,15 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Leaf, Flower2, Menu, X } from "lucide-react";
+import { Leaf, MessageCircle, Wand2, Menu, X } from "lucide-react";
 import { BUILDER_URL } from "@kalamekar/shared/tokens";
+
+const MENU = [
+  { label: "Toko Bunga", href: "/toko-bunga" },
+  { label: "Moments", href: "/momen" },
+  { label: "Kategori", href: "/kategori" },
+  { label: "Untuk Florist", href: "/untuk-florist" },
+  { label: "Tentang Kami", href: "/tentang-kami" },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isActive = (path) => pathname === path;
-  const activeStyle = (path) => (isActive(path) ? { color: "var(--rk-maroon)" } : undefined);
+  const isActive = (href) => pathname === href || pathname?.startsWith(href + "/");
+  const activeStyle = (href) => (isActive(href) ? { color: "var(--rk-maroon)" } : undefined);
 
   return (
     <header style={{ background: "rgba(255,255,255,.92)", backdropFilter: "blur(8px)", position: "sticky", top: 0, zIndex: 50, borderBottom: "1px solid var(--rk-line)" }}>
@@ -22,15 +30,30 @@ export default function Navbar() {
           </span>
           <span className="rk-serif" style={{ color: "var(--rk-maroon-deep)", fontSize: 20, fontWeight: 700, letterSpacing: 0.4 }}>Kalamekar</span>
         </Link>
+
         <nav style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
-          <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/")} href="/">Beranda</Link>
-          <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" href="/#kategori">Kategori</Link>
-          <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" href="/#cara-kerja">Cara kerja</Link>
-          <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" style={activeStyle("/tentang")} href="/tentang" aria-current={isActive("/tentang") ? "page" : undefined}>Tentang</Link>
-          <Link className="rk-navlink rk-navlink-onlight rk-hide-sm" href="/#faq">FAQ</Link>
-          <a className="rk-btn rk-hide-sm" style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "9px 18px", fontSize: 14, textDecoration: "none" }} href={BUILDER_URL}>
-            <Flower2 size={16} /> Rangkai
+          {MENU.map((m) => (
+            <Link
+              key={m.href}
+              className="rk-navlink rk-navlink-onlight rk-hide-sm"
+              style={activeStyle(m.href)}
+              href={m.href}
+              aria-current={isActive(m.href) ? "page" : undefined}
+            >
+              {m.label}
+            </Link>
+          ))}
+          <a className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href={BUILDER_URL}>
+            <Wand2 size={16} /> Desain Buket
           </a>
+          <Link
+            className="rk-btn rk-hide-sm"
+            style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "9px 18px", fontSize: 14, textDecoration: "none" }}
+            href="/kontak"
+          >
+            <MessageCircle size={16} /> Kontak
+          </Link>
+
           <button
             type="button"
             className="rk-nav-toggle"
@@ -44,19 +67,34 @@ export default function Navbar() {
 
         {mobileOpen && (
           <div className="rk-nav-mobile">
-            <Link className="rk-navlink rk-navlink-onlight" style={activeStyle("/")} href="/" onClick={() => setMobileOpen(false)}>Beranda</Link>
-            <Link className="rk-navlink rk-navlink-onlight" href="/#kategori" onClick={() => setMobileOpen(false)}>Kategori</Link>
-            <Link className="rk-navlink rk-navlink-onlight" href="/#cara-kerja" onClick={() => setMobileOpen(false)}>Cara kerja</Link>
-            <Link className="rk-navlink rk-navlink-onlight" style={activeStyle("/tentang")} href="/tentang" aria-current={isActive("/tentang") ? "page" : undefined} onClick={() => setMobileOpen(false)}>Tentang</Link>
-            <Link className="rk-navlink rk-navlink-onlight" href="/#faq" onClick={() => setMobileOpen(false)}>FAQ</Link>
+            {MENU.map((m) => (
+              <Link
+                key={m.href}
+                className="rk-navlink rk-navlink-onlight"
+                style={activeStyle(m.href)}
+                href={m.href}
+                aria-current={isActive(m.href) ? "page" : undefined}
+                onClick={() => setMobileOpen(false)}
+              >
+                {m.label}
+              </Link>
+            ))}
             <a
-              className="rk-btn"
-              style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "10px 18px", fontSize: 14, textDecoration: "none", marginTop: 6, justifyContent: "center" }}
+              className="rk-btn rk-btn-ghost"
+              style={{ padding: "10px 18px", fontSize: 14, textDecoration: "none", marginTop: 6, justifyContent: "center" }}
               href={BUILDER_URL}
               onClick={() => setMobileOpen(false)}
             >
-              <Flower2 size={16} /> Rangkai
+              <Wand2 size={16} /> Desain Buket
             </a>
+            <Link
+              className="rk-btn"
+              style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "10px 18px", fontSize: 14, textDecoration: "none", justifyContent: "center" }}
+              href="/kontak"
+              onClick={() => setMobileOpen(false)}
+            >
+              <MessageCircle size={16} /> Kontak
+            </Link>
           </div>
         )}
       </div>
