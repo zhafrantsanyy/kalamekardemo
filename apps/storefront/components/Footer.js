@@ -7,6 +7,13 @@ const LIVE_CITIES = [
   { nama: "Surabaya", slug: "surabaya" },
   { nama: "Yogyakarta", slug: "yogyakarta" },
   { nama: "Medan", slug: "medan" },
+  { nama: "Bekasi", slug: "bekasi" },
+];
+
+const POPULAR_MOMEN = [
+  { nama: "Bunga Wisuda", href: "/bunga-wisuda" },
+  { nama: "Papan Bunga Grand Opening", href: "/papan-bunga-grand-opening" },
+  { nama: "Bunga Duka Cita", href: "/bunga-duka-cita" },
 ];
 
 function FooterCol({ title, children }) {
@@ -35,6 +42,7 @@ export default function Footer() {
             <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href="/toko-bunga">Toko Bunga</Link>
             <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href="/momen">Moments</Link>
             <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href="/kategori">Kategori</Link>
+            <Link className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href="/blog">Blog</Link>
             <a className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href={BUILDER_URL}>Desain Buket Sendiri</a>
           </FooterCol>
 
@@ -53,6 +61,14 @@ export default function Footer() {
             {LIVE_CITIES.map((c) => (
               <Link key={c.slug} className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href={`/toko-bunga/${c.slug}`}>
                 Toko Bunga {c.nama}
+              </Link>
+            ))}
+          </FooterCol>
+
+          <FooterCol title="Momen Populer">
+            {POPULAR_MOMEN.map((m) => (
+              <Link key={m.href} className="rk-navlink rk-navlink-ondark" style={{ padding: 0, textAlign: "left" }} href={m.href}>
+                {m.nama}
               </Link>
             ))}
           </FooterCol>

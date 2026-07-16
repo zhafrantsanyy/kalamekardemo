@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin, ChevronRight } from "lucide-react";
+import { LIVE_KOTA_SLUGS } from "@/lib/data/kota";
 
 export const metadata = {
   title: { absolute: "Direktori Toko Bunga di Seluruh Indonesia | Kalamekar" },
@@ -20,22 +21,18 @@ const TIER1 = [
   { nama: "Surabaya", slug: "surabaya", desc: "Pusat florist Jawa Timur, andalan untuk pengiriman ke kawasan industri hingga perumahan." },
   { nama: "Bandung", slug: "bandung", desc: "Florist dengan sentuhan gaya kekinian, favorit untuk buket wisuda dan hampers hadiah." },
   { nama: "Medan", slug: "medan", desc: "Florist Sumatera Utara yang kuat di papan bunga duka cita dan rangkaian acara adat." },
+  { nama: "Bekasi", slug: "bekasi", desc: "Florist yang paham rute padat komuter, tetap tepat waktu untuk acara kantor maupun rumah." },
+  { nama: "Yogyakarta", slug: "yogyakarta", desc: "Florist dengan sentuhan tradisi Jawa, kuat untuk pernikahan dan acara adat." },
   { nama: "Semarang", slug: "semarang", desc: "Jaringan florist yang terus berkembang, melayani dari kota lama hingga area pesisir." },
   { nama: "Tangerang", slug: "tangerang", desc: "Dekat Jakarta tapi punya florist lokalnya sendiri — cocok untuk pengiriman ke BSD hingga Alam Sutera." },
-  { nama: "Bekasi", slug: "bekasi", desc: "Florist yang paham rute padat komuter, tetap tepat waktu untuk acara kantor maupun rumah." },
   { nama: "Depok", slug: "depok", desc: "Florist kawasan kampus dan perumahan, favorit untuk bunga wisuda dan acara kampus." },
-  { nama: "Yogyakarta", slug: "yogyakarta", desc: "Florist dengan sentuhan tradisi Jawa, kuat untuk pernikahan dan acara adat." },
   { nama: "Makassar", slug: "makassar", desc: "Pusat florist Indonesia Timur, melayani kota hingga kawasan pelabuhan sekitarnya." },
-];
+].map((c) => ({ ...c, live: LIVE_KOTA_SLUGS.includes(c.slug) }));
 
 const TIER2 = [
   "Denpasar", "Palembang", "Malang", "Surakarta (Solo)", "Batam", "Pekanbaru", "Balikpapan",
   "Samarinda", "Manado", "Padang", "Banjarmasin", "Cimahi", "Sidoarjo", "Cirebon", "Serang",
 ];
-
-function tier2Slug(nama) {
-  return nama.toLowerCase().replace(/\s*\(.*\)\s*/g, "").trim().replace(/\s+/g, "-");
-}
 
 const FAQS = [
   {
@@ -111,7 +108,7 @@ export default function TokoBungaPage() {
         <div style={{ maxWidth: 1080, margin: "0 auto" }}>
           <h2 className="rk-serif" style={{ fontSize: 26, color: "var(--rk-maroon)", marginBottom: 18 }}>Kota-kota utama</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 16 }}>
-            {TIER1.map((c) => (
+            {TIER1.map((c) => c.live ? (
               <Link key={c.slug} href={`/toko-bunga/${c.slug}`} className="rk-card" style={{ display: "block", padding: 22, textDecoration: "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, fontSize: 17, color: "var(--rk-ink)" }} className="rk-serif">
                   <MapPin size={15} color="var(--rk-maroon)" /> {c.nama}
@@ -121,6 +118,18 @@ export default function TokoBungaPage() {
                   Lihat florist <ChevronRight size={14} />
                 </div>
               </Link>
+            ) : (
+              <div key={c.slug} className="rk-card" style={{ padding: 22, opacity: 0.65 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, fontSize: 17, color: "var(--rk-ink)" }} className="rk-serif">
+                    <MapPin size={15} color="var(--rk-ink-soft)" /> {c.nama}
+                  </div>
+                  <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: ".05em", textTransform: "uppercase", color: "var(--rk-ink-soft)", border: "1px solid var(--rk-line)", borderRadius: 999, padding: "3px 9px" }}>
+                    Segera hadir
+                  </span>
+                </div>
+                <div style={{ fontSize: 13.5, color: "var(--rk-ink-soft)", marginTop: 8, lineHeight: 1.55 }}>{c.desc}</div>
+              </div>
             ))}
           </div>
         </div>
@@ -134,9 +143,9 @@ export default function TokoBungaPage() {
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 10 }}>
             {TIER2.map((nama) => (
-              <Link key={nama} href={`/toko-bunga/${tier2Slug(nama)}`} className="rk-link-chip rk-link-chip-active" style={{ justifyContent: "space-between" }}>
-                {nama} <ChevronRight size={13} />
-              </Link>
+              <span key={nama} className="rk-link-chip" style={{ justifyContent: "space-between" }}>
+                {nama} <span style={{ fontSize: 11 }}>· segera</span>
+              </span>
             ))}
           </div>
         </div>

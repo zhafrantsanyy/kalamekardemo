@@ -15,6 +15,9 @@ export const metadata = {
   },
 };
 
+// Pengelompokan di bawah ini murni untuk tampilan hub (supaya pasangan momen yang
+// mirip terlihat berdekatan) — beda dengan field `kelompok` di lib/data/momen.js
+// yang jadi kategori data resminya (dipakai untuk sitemap priority, dst).
 const GROUPS = [
   {
     h2: "Momen personal",
@@ -22,11 +25,12 @@ const GROUPS = [
     items: [
       { nama: "Bunga Wisuda", desc: "Rayakan pencapaian dengan rangkaian yang berkesan.", href: "/bunga-wisuda" },
       { nama: "Bunga Ulang Tahun", desc: "Buket yang bikin hari spesialnya makin meriah.", href: "/bunga-ulang-tahun" },
+      { nama: "Papan Bunga Ulang Tahun", desc: "Versi lebih besar dan meriah, cocok kejutan di kantor.", href: "/papan-bunga-ulang-tahun" },
       { nama: "Bunga Anniversary", desc: "Kenang hari jadi bersama orang tersayang.", href: "/bunga-anniversary" },
       { nama: "Bunga Valentine", desc: "Ungkapkan cinta lewat rangkaian yang romantis.", href: "/bunga-valentine" },
       { nama: "Bunga Hari Ibu", desc: "Ucapan terima kasih untuk ibu tercinta.", href: "/bunga-hari-ibu" },
       { nama: "Bunga Ucapan Selamat", desc: "Rayakan pencapaian teman atau kolega.", href: "/bunga-ucapan-selamat" },
-      { nama: "Bunga Get Well Soon", desc: "Kirim semangat untuk yang sedang sakit.", href: "/bunga-get-well-soon" },
+      { nama: "Bunga Cepat Sembuh", desc: "Kirim semangat untuk yang sedang sakit.", href: "/bunga-cepat-sembuh" },
       { nama: "Bunga Permintaan Maaf", desc: "Sampaikan maaf lewat bahasa bunga.", href: "/bunga-permintaan-maaf" },
     ],
   },
@@ -46,7 +50,8 @@ const GROUPS = [
     items: [
       { nama: "Bunga Duka Cita", desc: "Sampaikan belasungkawa dengan layak.", href: "/bunga-duka-cita" },
       { nama: "Karangan Bunga Duka Cita", desc: "Rangkaian duka cita untuk berbagai kebutuhan acara.", href: "/karangan-bunga-duka-cita" },
-      { nama: "Salib Duka", desc: "Rangkaian bernuansa religi untuk upacara pemakaman.", href: "/salib-duka-cita" },
+      { nama: "Papan Bunga Duka Cita", desc: "Ukuran besar, dikirim cepat ke lokasi acara.", href: "/papan-bunga-duka-cita" },
+      { nama: "Bunga Salib Duka", desc: "Karangan berbentuk salib untuk penghormatan terakhir.", href: "/bunga-salib-duka" },
     ],
   },
   {

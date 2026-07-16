@@ -49,7 +49,7 @@ const OCCASIONS = [
   { nama: "Bunga Wisuda", desc: "Rayakan wisuda dengan rangkaian bunga istimewa.", href: "/bunga-wisuda" },
   { nama: "Bunga Ulang Tahun", desc: "Buket ulang tahun yang bikin harinya makin berkesan.", href: "/bunga-ulang-tahun" },
   { nama: "Papan Bunga Grand Opening", desc: "Ucapan sukses pembukaan usaha, kirim di hari yang sama.", href: "/papan-bunga-grand-opening" },
-  { nama: "Papan Bunga Duka Cita", desc: "Sampaikan belasungkawa lewat rangkaian yang layak dan sopan.", href: "/bunga-duka-cita" },
+  { nama: "Papan Bunga Duka Cita", desc: "Sampaikan belasungkawa lewat rangkaian yang layak dan sopan.", href: "/papan-bunga-duka-cita" },
   { nama: "Bunga Anniversary", desc: "Rayakan hari jadi bersama pasangan atau orang terkasih.", href: "/bunga-anniversary" },
   { nama: "Bunga Valentine", desc: "Ungkapkan cinta lewat buket valentine yang dirangkai segar.", href: "/bunga-valentine" },
 ];
@@ -59,8 +59,8 @@ const CITIES = [
   { nama: "Surabaya", slug: "surabaya", desc: "Florist terverifikasi di Surabaya." },
   { nama: "Bandung", slug: "bandung", desc: "Florist terverifikasi di Bandung." },
   { nama: "Medan", slug: "medan", desc: "Florist terverifikasi di Medan." },
+  { nama: "Bekasi", slug: "bekasi", desc: "Florist terverifikasi di Bekasi." },
   { nama: "Yogyakarta", slug: "yogyakarta", desc: "Florist terverifikasi di Yogyakarta." },
-  { nama: "Makassar", slug: "makassar", desc: "Florist terverifikasi di Makassar." },
 ];
 
 const RIBBON_TAGS = ["Bunga Wisuda", "Papan Bunga Pernikahan", "Bunga Duka Cita", "Grand Opening", "Anniversary", "Hand Bouquet Valentine"];

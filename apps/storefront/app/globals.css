@@ -94,6 +94,22 @@ a {
 .rk-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 6px; align-items: center; justify-content: center; }
 .rk-nav-mobile { display: none; }
 
+.rk-nav-dropdown { position: relative; }
+.rk-nav-dropdown-trigger { display: inline-flex; align-items: center; gap: 4px; }
+.rk-nav-dropdown-panel {
+  position: absolute; top: calc(100% + 10px); left: 0; min-width: 190px;
+  background: #fff; border: 1px solid var(--rk-line); border-radius: 14px;
+  box-shadow: 0 18px 40px -20px rgba(28, 42, 32, .35); padding: 8px;
+  display: flex; flex-direction: column; gap: 2px; z-index: 60;
+}
+.rk-nav-dropdown-panel .rk-navlink { padding: 9px 12px; border-radius: 9px; }
+.rk-nav-dropdown-panel .rk-navlink:hover { background: var(--rk-cream); }
+.rk-nav-mobile-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--rk-ink-soft); padding: 8px 2px 2px;
+}
+.rk-nav-mobile-divider { height: 1px; background: var(--rk-line); margin: 6px 0; }
+
 @media (max-width: 760px) {
   .rk-steps-grid { grid-template-columns: 1fr; }
   .rk-arch-grid { grid-template-columns: 1fr; }

@@ -105,7 +105,7 @@ export default function KategoriPage() {
       <section style={{ padding: "56px 20px 80px" }}>
         <div style={{ maxWidth: 1080, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
           {CATEGORIES.map((c) => (
-            <div key={c.id} className="rk-card" style={{ padding: 24 }}>
+            <div key={c.id} id={c.id} className="rk-card" style={{ padding: 24, scrollMarginTop: 90 }}>
               <span className="rk-cat-icon"><c.icon size={20} color="var(--rk-maroon)" /></span>
               <h2 className="rk-serif" style={{ fontSize: 19, fontWeight: 700, color: "var(--rk-ink)", marginBottom: 8 }}>{c.nama}</h2>
               <p style={{ fontSize: 14, color: "var(--rk-ink-soft)", lineHeight: 1.6 }}>{c.desc}</p>
