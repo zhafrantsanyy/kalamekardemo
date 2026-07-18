@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Flower2, Heart, Sparkles, Leaf, ShoppingBag, Gem, ChevronRight } from "lucide-react";
+import { Flower2, ChevronRight } from "lucide-react";
+import { KATEGORI_LIST } from "@/lib/data/kategori";
 
 export const metadata = {
   title: { absolute: "Kategori Produk Bunga — Buket, Papan Bunga, Standing Flower | Kalamekar" },
@@ -14,55 +15,6 @@ export const metadata = {
     type: "website",
   },
 };
-
-const CATEGORIES = [
-  {
-    id: "buket-bunga",
-    nama: "Buket Bunga",
-    icon: Flower2,
-    desc: "Rangkaian genggam untuk hadiah personal — ulang tahun, anniversary, hingga permintaan maaf. Tersedia dari buket mini satu genggam sampai buket besar dengan bunga premium seperti mawar dan lily, jadi bisa disesuaikan dengan budget dan momennya.",
-    links: [],
-  },
-  {
-    id: "papan-bunga",
-    nama: "Papan Bunga",
-    icon: Heart,
-    desc: "Standing besar untuk acara formal — grand opening, pernikahan, hingga duka cita. Ukurannya mencolok dan biasanya dipajang di lokasi acara, dengan papan ucapan yang bisa ditulis sesuai kebutuhan pengirim.",
-    links: [
-      { nama: "Grand Opening", href: "/papan-bunga-grand-opening" },
-      { nama: "Pernikahan", href: "/papan-bunga-pernikahan" },
-      { nama: "Duka Cita", href: "/bunga-duka-cita" },
-    ],
-  },
-  {
-    id: "standing-flower",
-    nama: "Standing Flower",
-    icon: Sparkles,
-    desc: "Mirip papan bunga, tapi framingnya lebih ke dekorasi acara atau booth — cocok untuk mempercantik area resepsi, panggung, atau titik foto di acara kamu. Bentuknya lebih fleksibel dan sering dipadukan dengan elemen dekorasi lain.",
-    links: [],
-  },
-  {
-    id: "bunga-meja",
-    nama: "Bunga Meja",
-    icon: Leaf,
-    desc: "Rangkaian dalam vas untuk kantor, meja resepsi, atau acara indoor. Ukurannya ringkas, dirancang supaya tetap terlihat rapi di ruangan tanpa memakan banyak tempat, dan cocok untuk penggunaan jangka pendek maupun dekorasi rutin.",
-    links: [],
-  },
-  {
-    id: "parcel-bunga",
-    nama: "Parcel Bunga",
-    icon: ShoppingBag,
-    desc: "Kombinasi bunga dengan hampers atau hadiah lain seperti cokelat, kue, atau perawatan diri. Pilihan pas untuk hari raya, ucapan terima kasih, atau kado yang terasa lebih lengkap dibanding buket biasa.",
-    links: [],
-  },
-  {
-    id: "bunga-artificial",
-    nama: "Bunga Artificial",
-    icon: Gem,
-    desc: "Opsi bunga tahan lama untuk dekorasi permanen — cocok untuk interior rumah, kantor, atau etalase toko yang ingin tampil segar tanpa perlu perawatan dan penggantian rutin seperti bunga segar.",
-    links: [],
-  },
-];
 
 const collectionPageJsonLd = {
   "@context": "https://schema.org",
@@ -104,7 +56,7 @@ export default function KategoriPage() {
 
       <section style={{ padding: "56px 20px 80px" }}>
         <div style={{ maxWidth: 1080, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-          {CATEGORIES.map((c) => (
+          {KATEGORI_LIST.map((c) => (
             <div key={c.id} id={c.id} className="rk-card" style={{ padding: 24, scrollMarginTop: 90 }}>
               <span className="rk-cat-icon"><c.icon size={20} color="var(--rk-maroon)" /></span>
               <h2 className="rk-serif" style={{ fontSize: 19, fontWeight: 700, color: "var(--rk-ink)", marginBottom: 8 }}>{c.nama}</h2>

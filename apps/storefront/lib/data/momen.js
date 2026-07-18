@@ -554,6 +554,33 @@ export const MOMEN_DATA = {
 
 export const MOMEN_LIST = MOMEN_SLUGS.map((slug) => MOMEN_DATA[slug]);
 
+// Pengelompokan tampilan (dipakai hub /momen dan dropdown navbar) — beda dari
+// field `kelompok` di atas yang jadi kategori data resmi (dipakai sitemap, dst).
+// papan-bunga-ulang-tahun & papan-bunga-duka-cita sengaja digeser berdekatan
+// dengan pasangannya meski `kelompok` datanya "formal".
+export const MOMEN_DISPLAY_GROUPS = [
+  {
+    label: "Momen Personal",
+    slugs: [
+      "bunga-wisuda", "bunga-ulang-tahun", "papan-bunga-ulang-tahun", "bunga-anniversary",
+      "bunga-valentine", "bunga-hari-ibu", "bunga-ucapan-selamat", "bunga-cepat-sembuh",
+      "bunga-permintaan-maaf",
+    ],
+  },
+  {
+    label: "Acara & Formal",
+    slugs: ["papan-bunga-grand-opening", "papan-bunga-pernikahan", "papan-bunga-selamat-sukses", "papan-bunga-anniversary-perusahaan"],
+  },
+  {
+    label: "Duka Cita & Religi",
+    slugs: ["bunga-duka-cita", "karangan-bunga-duka-cita", "papan-bunga-duka-cita", "bunga-salib-duka"],
+  },
+  {
+    label: "Korporat",
+    slugs: ["bunga-kantor", "bunga-perusahaan"],
+  },
+];
+
 const BASE_URL = "https://kalamekar.id";
 
 export function momenMetadata(slug) {
