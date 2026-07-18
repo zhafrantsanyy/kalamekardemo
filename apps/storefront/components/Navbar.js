@@ -118,7 +118,7 @@ export default function Navbar() {
                       role="menu"
                     >
                       {item.columns.map((col, i) => (
-                        <div key={col.label || i} className={item.wide ? "rk-nav-dropdown-col" : undefined}>
+                        <div key={col.label || i} className="rk-nav-dropdown-col">
                           {col.label && <span className="rk-nav-dropdown-col-label">{col.label}</span>}
                           {col.items.map((link) => (
                             <Link
@@ -191,7 +191,7 @@ export default function Navbar() {
                   {mobileSection === item.key && (
                     <div className="rk-nav-mobile-section-panel">
                       {item.columns.map((col, i) => (
-                        <div key={col.label || i}>
+                        <div key={col.label || i} style={{ display: "flex", flexDirection: "column" }}>
                           {col.label && <div className="rk-nav-mobile-label">{col.label}</div>}
                           {col.items.map((link) => (
                             <Link
