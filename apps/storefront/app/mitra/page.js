@@ -1,13 +1,10 @@
-import { Flower2 } from "lucide-react";
+import { Flower2, MapPin, PackageSearch } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import LogoutButton from "@/components/LogoutButton";
+import { rupiah } from "@/lib/catalog";
+import { areaKasar } from "@/lib/maskAlamat";
+import { TerimaTolakButtons } from "@/components/mitra/OrderActionButtons";
 
-export const metadata = {
-  title: { absolute: "Dashboard Mitra — Kalamekar" },
-  robots: { index: false, follow: false },
-};
-
-export default async function MitraPage() {
+export default async function MitraOrderMasukPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -15,26 +12,57 @@ export default async function MitraPage() {
 
   const { data: floris } = await supabase
     .from("florists")
-    .select("nama, area")
+    .select("id")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  return (
-    <section style={{ padding: "60px 20px 80px", maxWidth: 720, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <span className="rk-eyebrow"><Flower2 size={13} /> Dashboard Mitra</span>
-          <h1 className="rk-serif" style={{ fontSize: 28, color: "var(--rk-maroon-deep)", margin: "10px 0 0" }}>
-            Halo, {floris?.nama || user.email}
-          </h1>
-        </div>
-        <LogoutButton />
-      </div>
-      <div className="rk-card" style={{ padding: 24 }}>
-        <p style={{ color: "var(--rk-ink-soft)", fontSize: 14.5, lineHeight: 1.6 }}>
-          Order masuk, status pengerjaan, dan riwayat akan tampil di sini.
+  const { data: orders } = floris
+    ? await supabase
+        .from("orders")
+        .select("id, kode, alamat, tanggal, mode, ukuran, subtotal, created_at")
+        .eq("floris_id", floris.id)
+        .eq("status", "matching")
+        .order("created_at", { ascending: true })
+    : { data: [] };
+
+  if (!orders || orders.length === 0) {
+    return (
+      <div className="rk-card" style={{ padding: 32, textAlign: "center" }}>
+        <PackageSearch size={26} style={{ color: "var(--rk-ink-soft)" }} />
+        <p style={{ color: "var(--rk-ink-soft)", fontSize: 14, marginTop: 10 }}>
+          Belum ada order masuk yang menunggu konfirmasimu.
         </p>
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div style={{ display: "grid", gap: 14 }}>
+      {orders.map((o) => (
+        <div key={o.id} className="rk-card" style={{ padding: 20, display: "grid", gap: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 15, color: "var(--rk-maroon-deep)" }}>{o.kode}</div>
+              <div style={{ fontSize: 13, color: "var(--rk-ink-soft)", marginTop: 2 }}>
+                Kirim {new Date(o.tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+              </div>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontWeight: 800, fontSize: 16, color: "var(--rk-maroon)" }}>{rupiah(o.subtotal)}</div>
+              <div style={{ fontSize: 11.5, color: "var(--rk-ink-soft)" }}>Nilai untuk floris</div>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, color: "var(--rk-ink-soft)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <Flower2 size={14} /> {o.mode === "bouquet" ? "Buket" : "Krans"} · {o.ukuran}
+            </span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <MapPin size={14} /> {areaKasar(o.alamat)}
+            </span>
+          </div>
+          <TerimaTolakButtons orderId={o.id} />
+        </div>
+      ))}
+    </div>
   );
 }
