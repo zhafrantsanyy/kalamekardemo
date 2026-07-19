@@ -4,7 +4,7 @@ import { ChevronLeft, MapPin, Phone, Calendar, Clock, StickyNote } from "lucide-
 import { createClient } from "@/lib/supabase/server";
 import { rupiah } from "@/lib/catalog";
 import { ACTION_LABEL, nextStatus } from "@/lib/orderFlow";
-import StatusBadge from "@/components/mitra/StatusBadge";
+import StatusBadge from "@/components/StatusBadge";
 import OrderCanvasPreview from "@/components/mitra/OrderCanvasPreview";
 import { MajuStatusButton } from "@/components/mitra/OrderActionButtons";
 import UploadFotoForm from "@/components/mitra/UploadFotoForm";

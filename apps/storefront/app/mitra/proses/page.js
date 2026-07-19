@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import StatusBadge from "@/components/mitra/StatusBadge";
+import StatusBadge from "@/components/StatusBadge";
 
 export default async function MitraProsesPage() {
   const supabase = await createClient();
