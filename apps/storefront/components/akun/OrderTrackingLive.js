@@ -16,6 +16,7 @@ const TRACK_STEPS = [
 
 export default function OrderTrackingLive({ initialOrder }) {
   const [order, setOrder] = useState(initialOrder);
+  const [flashKey, setFlashKey] = useState(0);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -34,7 +35,12 @@ export default function OrderTrackingLive({ initialOrder }) {
         .on(
           "postgres_changes",
           { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${initialOrder.id}` },
-          (payload) => setOrder(payload.new),
+          (payload) => {
+            setOrder((prev) => {
+              if (prev.status !== payload.new.status) setFlashKey((k) => k + 1);
+              return payload.new;
+            });
+          },
         )
         .subscribe();
     });
@@ -63,7 +69,7 @@ export default function OrderTrackingLive({ initialOrder }) {
   const currentIndex = STATUS_FLOW.indexOf(order.status);
 
   return (
-    <div style={{ display: "grid", gap: 16 }}>
+    <div key={flashKey} className="rk-status-flash" style={{ display: "grid", gap: 16 }}>
       <div className="rk-card" style={{ padding: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <div style={{ fontWeight: 800, fontSize: 16, color: "var(--rk-maroon-deep)" }}>{order.kode}</div>
         <StatusBadge status={order.status} />
@@ -81,19 +87,20 @@ export default function OrderTrackingLive({ initialOrder }) {
             return (
               <div key={s.status} style={{ display: "flex", gap: 14, position: "relative", paddingBottom: i < TRACK_STEPS.length - 1 ? 24 : 0 }}>
                 {i < TRACK_STEPS.length - 1 && (
-                  <div style={{ position: "absolute", left: 19, top: 40, bottom: 2, width: 2, background: done ? "var(--rk-teal-deep)" : "var(--rk-line)" }} />
+                  <div style={{ position: "absolute", left: 19, top: 40, bottom: 2, width: 2, background: done ? "var(--rk-teal-deep)" : "var(--rk-line)", transition: "background .4s ease" }} />
                 )}
                 <div
                   style={{
                     width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                     background: done ? "var(--rk-teal-deep)" : active ? "var(--rk-gold)" : "var(--rk-line)",
                     color: done || active ? "#fff" : "var(--rk-ink-soft)", zIndex: 1,
+                    transition: "background .4s ease, color .4s ease",
                   }}
                 >
                   {done ? <Check size={18} /> : <s.icon size={18} />}
                 </div>
                 <div style={{ paddingTop: 8 }}>
-                  <div style={{ fontWeight: 800, fontSize: 14.5, color: done || active ? "var(--rk-ink)" : "var(--rk-ink-soft)" }}>{s.label}</div>
+                  <div style={{ fontWeight: 800, fontSize: 14.5, color: done || active ? "var(--rk-ink)" : "var(--rk-ink-soft)", transition: "color .4s ease" }}>{s.label}</div>
                   <div style={{ fontSize: 13, color: "var(--rk-ink-soft)", lineHeight: 1.5, marginTop: 2 }}>{s.desc}</div>
                 </div>
               </div>

@@ -34,12 +34,12 @@ export default async function MitraProsesPage() {
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
-      {orders.map((o) => (
+      {orders.map((o, i) => (
         <Link
           key={o.id}
           href={`/mitra/pesanan/${o.id}`}
-          className="rk-card"
-          style={{ padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center", textDecoration: "none", gap: 12, flexWrap: "wrap" }}
+          className="rk-card rk-dash-card rk-dash-card-link"
+          style={{ padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center", textDecoration: "none", gap: 12, flexWrap: "wrap", animationDelay: `${Math.min(i, 10) * 30}ms` }}
         >
           <div>
             <div style={{ fontWeight: 800, fontSize: 14.5, color: "var(--rk-maroon-deep)" }}>{o.kode}</div>

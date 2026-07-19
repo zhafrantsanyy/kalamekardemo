@@ -55,17 +55,18 @@ export default function ProfilPembeliForm({ userId, profile }) {
     <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16 }}>
       <div>
         <label style={labelStyle} htmlFor="akun-nama">Nama</label>
-        <input id="akun-nama" style={fieldStyle} value={form.nama} onChange={update("nama")} placeholder="Nama lengkap" />
+        <input id="akun-nama" className="rk-field" style={fieldStyle} value={form.nama} onChange={update("nama")} placeholder="Nama lengkap" />
       </div>
       <div>
         <label style={labelStyle} htmlFor="akun-wa">Nomor WhatsApp</label>
-        <input id="akun-wa" style={fieldStyle} value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
+        <input id="akun-wa" className="rk-field" style={fieldStyle} value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
       </div>
       <div>
         <label style={labelStyle} htmlFor="akun-alamat">Alamat default</label>
         <textarea
           id="akun-alamat"
           rows={3}
+          className="rk-field"
           style={{ ...fieldStyle, resize: "vertical" }}
           value={form.alamat_default}
           onChange={update("alamat_default")}

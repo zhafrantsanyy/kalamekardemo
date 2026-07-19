@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { rupiah } from "@/lib/catalog";
 import { ACTION_LABEL, nextStatus } from "@/lib/orderFlow";
 import StatusBadge from "@/components/StatusBadge";
-import OrderCanvasPreview from "@/components/mitra/OrderCanvasPreview";
+import OrderCanvasPreview from "@/components/OrderCanvasPreview";
 import { MajuStatusButton } from "@/components/mitra/OrderActionButtons";
 import UploadFotoForm from "@/components/mitra/UploadFotoForm";
 

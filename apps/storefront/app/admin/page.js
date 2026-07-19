@@ -1,34 +1,59 @@
-import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { PackageSearch } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import LogoutButton from "@/components/LogoutButton";
+import { rupiah } from "@/lib/catalog";
+import StatusBadge from "@/components/StatusBadge";
+import OrderFilterBar from "@/components/admin/OrderFilterBar";
 
-export const metadata = {
-  title: { absolute: "Admin — Kalamekar" },
-  robots: { index: false, follow: false },
-};
+export default async function AdminOrderListPage({ searchParams }) {
+  const sp = await searchParams;
+  const status = sp?.status || "";
+  const q = (sp?.q || "").trim();
 
-export default async function AdminPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let query = supabase
+    .from("orders")
+    .select("id, kode, nama, status, tanggal, total, floris_id")
+    .order("created_at", { ascending: false })
+    .limit(200);
+
+  if (status) query = query.eq("status", status);
+  if (q) query = query.or(`kode.ilike.%${q}%,nama.ilike.%${q}%`);
+
+  const { data: orders } = await query;
 
   return (
-    <section style={{ padding: "60px 20px 80px", maxWidth: 720, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <span className="rk-eyebrow"><ShieldCheck size={13} /> Admin</span>
-          <h1 className="rk-serif" style={{ fontSize: 28, color: "var(--rk-maroon-deep)", margin: "10px 0 0" }}>
-            Halo, {user?.email}
-          </h1>
+    <div style={{ display: "grid", gap: 16 }}>
+      <OrderFilterBar />
+
+      {!orders || orders.length === 0 ? (
+        <div className="rk-card" style={{ padding: 32, textAlign: "center" }}>
+          <PackageSearch size={26} style={{ color: "var(--rk-ink-soft)" }} />
+          <p style={{ color: "var(--rk-ink-soft)", fontSize: 14, marginTop: 10 }}>Tidak ada order yang cocok.</p>
         </div>
-        <LogoutButton />
-      </div>
-      <div className="rk-card" style={{ padding: 24 }}>
-        <p style={{ color: "var(--rk-ink-soft)", fontSize: 14.5, lineHeight: 1.6 }}>
-          Daftar order, assign floris, dan kelola mitra segera hadir di sini.
-        </p>
-      </div>
-    </section>
+      ) : (
+        <div style={{ display: "grid", gap: 12 }}>
+          {orders.map((o, i) => (
+            <Link
+              key={o.id}
+              href={`/admin/pesanan/${o.id}`}
+              className="rk-card rk-dash-card rk-dash-card-link"
+              style={{ padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center", textDecoration: "none", gap: 12, flexWrap: "wrap", animationDelay: `${Math.min(i, 10) * 30}ms` }}
+            >
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14.5, color: "var(--rk-maroon-deep)" }}>{o.kode}</div>
+                <div style={{ fontSize: 12.5, color: "var(--rk-ink-soft)", marginTop: 2 }}>
+                  {o.nama} · {new Date(o.tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "long" })}
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontWeight: 700, fontSize: 13.5, color: "var(--rk-maroon)" }}>{rupiah(o.total)}</span>
+                <StatusBadge status={o.status} />
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

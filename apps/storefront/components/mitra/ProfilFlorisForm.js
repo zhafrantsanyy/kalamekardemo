@@ -47,15 +47,15 @@ export default function ProfilFlorisForm({ floris }) {
     <form onSubmit={handleSubmit} style={{ display: "grid", gap: 16 }}>
       <div>
         <label style={labelStyle} htmlFor="floris-nama">Nama studio/floris</label>
-        <input id="floris-nama" style={fieldStyle} value={form.nama} onChange={update("nama")} required />
+        <input id="floris-nama" className="rk-field" style={fieldStyle} value={form.nama} onChange={update("nama")} required />
       </div>
       <div>
         <label style={labelStyle} htmlFor="floris-area">Area layanan</label>
-        <input id="floris-area" style={fieldStyle} value={form.area} onChange={update("area")} placeholder="cth. Kemang, Jakarta Selatan" />
+        <input id="floris-area" className="rk-field" style={fieldStyle} value={form.area} onChange={update("area")} placeholder="cth. Kemang, Jakarta Selatan" />
       </div>
       <div>
         <label style={labelStyle} htmlFor="floris-wa">Nomor WhatsApp</label>
-        <input id="floris-wa" style={fieldStyle} value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
+        <input id="floris-wa" className="rk-field" style={fieldStyle} value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
       </div>
 
       {err && <p style={{ fontSize: 13, color: "#a13d3d", fontWeight: 600 }}>{err}</p>}

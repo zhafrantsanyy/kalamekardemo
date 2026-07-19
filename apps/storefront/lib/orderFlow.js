@@ -2,6 +2,11 @@
 // "batal" sengaja di luar rantai ini — order batal tidak boleh diproses lagi.
 export const STATUS_FLOW = ["matching", "dikonfirmasi", "dirakit", "diantar", "selesai"];
 
+// Semua status yang mungkin ada di kolom orders.status — dipakai admin
+// (filter daftar order, dropdown override status) yang boleh lihat/pilih
+// status apa saja, beda dari floris yang hanya boleh maju satu tahap.
+export const ALL_STATUSES = ["baru", "matching", "dikonfirmasi", "dirakit", "diantar", "selesai", "batal"];
+
 export const STATUS_LABEL = {
   baru: "Baru",
   matching: "Menunggu Floris",

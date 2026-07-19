@@ -55,11 +55,11 @@ export default function KlaimForm() {
       </p>
       <div>
         <label style={labelStyle} htmlFor="klaim-kode">Kode order</label>
-        <input id="klaim-kode" style={fieldStyle} required value={form.kode} onChange={update("kode")} placeholder="cth. KM-1234" />
+        <input id="klaim-kode" className="rk-field" style={fieldStyle} required value={form.kode} onChange={update("kode")} placeholder="cth. KM-1234" />
       </div>
       <div>
         <label style={labelStyle} htmlFor="klaim-wa">Nomor WhatsApp</label>
-        <input id="klaim-wa" style={fieldStyle} required value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
+        <input id="klaim-wa" className="rk-field" style={fieldStyle} required value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
       </div>
 
       {err && <p style={{ fontSize: 13, color: "#a13d3d", fontWeight: 600 }}>{err}</p>}

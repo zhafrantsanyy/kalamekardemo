@@ -31,8 +31,8 @@ export default async function AkunRiwayatPage() {
 
   return (
     <div style={{ display: "grid", gap: 14 }}>
-      {orders.map((o) => (
-        <div key={o.id} className="rk-card" style={{ padding: 20, display: "grid", gap: 12 }}>
+      {orders.map((o, i) => (
+        <div key={o.id} className="rk-card rk-dash-card" style={{ padding: 20, display: "grid", gap: 12, animationDelay: `${Math.min(i, 10) * 30}ms` }}>
           <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
             <div>
               <div style={{ fontWeight: 800, fontSize: 15, color: "var(--rk-maroon-deep)" }}>{o.kode}</div>
