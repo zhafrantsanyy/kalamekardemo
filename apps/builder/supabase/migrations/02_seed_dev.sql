@@ -21,18 +21,33 @@ declare
 begin
   select id into v_user_id from auth.users where email = 'floris.dev@kalamekar.test';
 
+  -- Backfill untuk baris yang sempat dibuat oleh versi file ini sebelum
+  -- kolom email_change/email_change_token_new ditambahkan ke insert di atas.
+  if v_user_id is not null then
+    update auth.users
+    set email_change = coalesce(email_change, ''),
+        email_change_token_new = coalesce(email_change_token_new, '')
+    where id = v_user_id
+      and (email_change is null or email_change_token_new is null);
+  end if;
+
   if v_user_id is null then
     v_user_id := gen_random_uuid();
 
+    -- email_change / email_change_token_new tidak punya default di skema
+    -- auth.users — kalau dibiarkan NULL, GoTrue gagal scan baris ini saat
+    -- login (500 "converting NULL to string"). Set eksplisit ke ''.
     insert into auth.users (
       instance_id, id, aud, role, email, encrypted_password,
       email_confirmed_at, created_at, updated_at,
-      raw_app_meta_data, raw_user_meta_data, confirmation_token, recovery_token
+      raw_app_meta_data, raw_user_meta_data, confirmation_token, recovery_token,
+      email_change, email_change_token_new
     ) values (
       '00000000-0000-0000-0000-000000000000', v_user_id, 'authenticated', 'authenticated',
       'floris.dev@kalamekar.test', crypt('floris123dev', gen_salt('bf')),
       now(), now(), now(),
-      '{"provider":"email","providers":["email"]}', '{}', '', ''
+      '{"provider":"email","providers":["email"]}', '{}', '', '',
+      '', ''
     );
 
     insert into auth.identities (

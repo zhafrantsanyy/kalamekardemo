@@ -11,7 +11,8 @@
       "name": "kalamekar-storefront",
       "runtimeExecutable": "C:\\PROGRA~1\\nodejs\\node.exe",
       "runtimeArgs": ["apps/storefront/node_modules/next/dist/bin/next", "dev", "apps/storefront"],
-      "port": 3000
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }
