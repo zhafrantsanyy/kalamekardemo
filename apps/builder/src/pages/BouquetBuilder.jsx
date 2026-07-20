@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { useLocation } from "react-router-dom";
 import {
   Flower2, Trash2, RotateCw, Plus, Minus, Copy, ArrowUp, Sparkles,
   ShoppingBag, MapPin, Star, Truck, Camera, Check, ChevronLeft,
@@ -639,14 +638,18 @@ function BuilderTrackingStep({ design, order, go }) {
 /* ---------------- Bouquet builder page (route: /builder) ---------------- */
 
 export default function BouquetBuilder() {
-  const location = useLocation();
-  const [design, setDesign] = useState(() => ({
-    items: [],
-    mode: location.state?.mode || "bouquet",
-    wrapId: "kraft",
-    baseId: "rotan",
-    sizeId: location.state?.sizeId || "M",
-  }));
+  const [design, setDesign] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    const sizeId = params.get("size");
+    return {
+      items: [],
+      mode: mode === "wreath" ? "wreath" : "bouquet",
+      wrapId: "kraft",
+      baseId: "rotan",
+      sizeId: SIZES.some((s) => s.id === sizeId) ? sizeId : "M",
+    };
+  });
   const [order, setOrder] = useState(null);
   const [step, setStep] = useState("builder");
 
