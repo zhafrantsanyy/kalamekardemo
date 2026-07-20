@@ -1,171 +1,206 @@
-# 🌸 Kalamekar — Panduan Deploy Lengkap (Frontend + Backend)
+<div align="center">
 
-Marketplace florist dengan custom bouquet & wreath builder. Setup ini dirancang untuk **Fase 1 (Concierge)**: website menerima pesanan → tersimpan di database → kamu orkestrasi ke floris partner via WhatsApp. Semuanya bisa jalan di **free tier** (Rp0/bulan), kecuali domain custom.
+# 🌸 Kalamekar
 
-**Arsitektur:**
+**Marketplace florist lokal Indonesia — rangkai buket & krans sendiri, dirakit florist terverifikasi di kotamu.**
 
-```
-Pengunjung ──> Frontend (Vercel)  ──insert──>  Database orders (Supabase)
-                    │                                │
-                    └── tombol wa.me ──> WhatsApp kamu (orchestrator)
-                                                     │
-                              kamu update status pesanan di Table Editor
-```
+*Kala* (waktu) + *mekar* — waktu ketika bunga berada di puncak keindahannya.
 
----
+![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=white&labelColor=173D28)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white&labelColor=173D28)
+![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20RLS-3FCF8E?logo=supabase&logoColor=white&labelColor=173D28)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white&labelColor=173D28)
+![Fase](https://img.shields.io/badge/Fase%201-Concierge-B93365?labelColor=173D28)
 
-## Prasyarat
-
-1. Akun [GitHub](https://github.com) (gratis)
-2. Akun [Supabase](https://supabase.com) (gratis) — backend & database
-3. Akun [Vercel](https://vercel.com) (gratis) — hosting frontend, login pakai GitHub
-4. [Node.js](https://nodejs.org) versi 18 atau lebih baru di laptopmu
+</div>
 
 ---
 
-## Langkah 1 — Jalankan dulu di laptop
+## Tentang Proyek
+
+Kalamekar menghubungkan pembeli dengan florist lokal (UMKM) terverifikasi di seluruh Indonesia. Pembeli bisa menelusuri produk siap pesan atau **merangkai buket/krans custom lewat kanvas drag-and-drop** dengan harga real-time, lalu checkout — pesanan tersimpan di database dan dikoordinasikan ke florist partner via WhatsApp.
+
+**Fase 1 (Concierge, saat ini):** website menerima & memvalidasi pesanan → orchestrator meneruskan ke florist partner via WhatsApp → status diperbarui manual. Seluruh setup berjalan di **free tier** (Rp0/bulan) kecuali domain custom.
+
+```
+Pengunjung ──> Frontend (Vercel) ──insert──> Database orders (Supabase, RLS)
+                    │                              │
+                    └── tombol wa.me ──> WhatsApp orchestrator
+                                                   │
+                          update status pesanan via Table Editor
+```
+
+## Fitur
+
+| Fitur | Deskripsi |
+|---|---|
+| 🎨 **Bouquet Builder** | Kanvas drag-and-drop untuk merangkai buket & krans — pilih bunga, filler, ukuran, wrapping; harga terhitung real-time |
+| 🛍️ **Katalog Produk** | Produk siap pesan dari florist partner (`/produk`, detail per slug) |
+| 🛒 **Keranjang & Checkout** | Cart context global, checkout tersimpan ke Supabase |
+| 📦 **Order Tracking** | Lacak status pesanan + tombol konfirmasi via WhatsApp |
+| 🏙️ **Cakupan Kota** | Chip kota aktif vs "segera hadir" di beranda |
+| 💬 **Concierge WhatsApp** | Handoff pesanan ke florist via `wa.me` — inti alur Fase 1 |
+| 🔒 **Row Level Security** | Pengunjung hanya bisa *membuat* pesanan, tidak bisa membaca pesanan orang lain |
+| ♿ **Aksesibilitas** | Focus outline konsisten, `prefers-reduced-motion`, navigasi keyboard |
+
+## Rute Aplikasi
+
+```
+/                → Beranda (hero, kategori, momen, cara kerja, untuk floris, FAQ)
+/produk          → Katalog produk florist
+/produk/:slug    → Detail produk
+/builder         → Kanvas rangkai buket & krans
+/keranjang       → Keranjang belanja
+/checkout        → Checkout & simpan pesanan
+/tentang         → Cerita, misi, dan roadmap Kalamekar
+```
+
+## Tech Stack
+
+- **Frontend:** React 18 + Vite 5, React Router DOM 7, lucide-react
+- **State:** React Context (`CartContext`)
+- **Backend:** Supabase — Postgres, PostgREST, Row Level Security · region Singapore (`ap-southeast-1`)
+- **Hosting:** Vercel (auto-deploy dari `main`, preview per PR)
+- **Bahasa:** Seluruh copy dalam Bahasa Indonesia 🇮🇩
+
+## Design System
+
+Token desain terpusat di [`src/lib/theme.js`](src/lib/theme.js) — jangan hardcode hex di komponen.
+
+**Palet — bloom pink · green · marigold · ink:**
+
+| Token | Hex | Peran |
+|---|---|---|
+| Bloom | `#B93365` | Warna utama brand (tombol, aksen) |
+| Bloom Dark | `#8F2450` | Hover state |
+| Petal | `#F6DCE6` | Latar chip/ikon pink muda |
+| Green-900 | `#173D28` | Band gelap: footer, ribbon, CTA |
+| Green-700 | `#275C3B` | Aksen hijau sekunder |
+| Marigold | `#E6A93B` | Aksen tersier + focus outline (a11y) |
+| Green-100 | `#EEF4EC` | Background halaman |
+| Ink / Ink Soft | `#1C2A20` / `#49584D` | Teks utama / sekunder |
+
+**Tipografi (Google Fonts):**
+
+- **Bricolage Grotesque** (500/600/700) — display & heading (`.rk-serif`)
+- **Plus Jakarta Sans** (400–700 + italic) — body & UI
+
+## Menjalankan di Lokal
+
+**Prasyarat:** Node.js ≥ 18, akun [Supabase](https://supabase.com) (gratis).
 
 ```bash
-# masuk ke folder proyek ini, lalu:
+# 1. Clone & install
+git clone https://github.com/USERNAME/kalamekar.git
+cd kalamekar
 npm install
-npm run dev
+
+# 2. Setup environment
+cp .env.example .env
 ```
 
-Buka `http://localhost:5173`. Website sudah jalan dalam **mode demo** (pesanan belum tersimpan karena env Supabase belum diisi). Ini normal — lanjut ke langkah 2.
+Isi `.env`:
 
----
-
-## Langkah 2 — Setup backend (Supabase)
-
-1. Login ke [supabase.com](https://supabase.com) → **New project**
-   - Name: `kalamekar`
-   - Database password: buat yang kuat, simpan baik-baik
-   - Region: **Southeast Asia (Singapore)** — `ap-southeast-1`, paling dekat ke Jakarta
-2. Setelah project siap, buka menu **SQL Editor** → **New query**
-3. Salin seluruh isi file `supabase/schema.sql` dari proyek ini → paste → klik **Run**
-   - Ini membuat tabel `orders` lengkap dengan Row Level Security: pengunjung hanya bisa *membuat* pesanan, tidak bisa membaca data pesanan orang lain.
-4. Ambil kredensial: menu **Project Settings → API**
-   - Salin **Project URL** (contoh: `https://abcdxyz.supabase.co`)
-   - Salin **anon public key** (yang panjang, diawali `eyJ...`)
-
-> Anon key memang aman ditaruh di frontend — itulah gunanya RLS. Yang **tidak boleh** pernah masuk frontend adalah `service_role` key.
-
----
-
-## Langkah 3 — Hubungkan frontend ke backend
-
-1. Salin `.env.example` menjadi `.env`:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Isi tiga variabelnya:
-
-   ```
-   VITE_SUPABASE_URL=https://abcdxyz.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJ...
-   VITE_ADMIN_WA=628xxxxxxxxxx
-   ```
-
-   `VITE_ADMIN_WA` = nomor WhatsApp kamu sebagai orchestrator, format internasional tanpa `+` (mis. `6281234567890`). Ini memunculkan tombol "Konfirmasi pesanan via WhatsApp" di halaman tracking — inti dari alur concierge.
-
-3. Restart `npm run dev`, buat pesanan percobaan, lalu cek di Supabase → **Table Editor → orders**. Barisnya harus muncul. ✅
-
----
-
-## Langkah 4 — Push ke GitHub
+```env
+VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
+VITE_ADMIN_WA=628xxxxxxxxxx   # nomor WA orchestrator, tanpa + atau spasi
+```
 
 ```bash
-git init
-git add .
-git commit -m "Kalamekar v0.1 - Fase 1 concierge"
+# 3. Jalankan
+npm run dev        # → http://localhost:5173
 ```
 
-Buat repository baru di GitHub (private boleh), lalu:
+> 💡 Tanpa env Supabase, aplikasi berjalan dalam **mode demo** (pesanan tidak tersimpan) — cocok untuk pengembangan UI.
 
-```bash
-git remote add origin https://github.com/USERNAME-KAMU/kalamekar.git
-git branch -M main
-git push -u origin main
+**Setup database:** buat project Supabase (region **Singapore**), buka **SQL Editor**, jalankan seluruh isi [`supabase/schema.sql`](supabase/schema.sql). Ini membuat tabel `orders` (dan `products`) lengkap dengan kebijakan RLS.
+
+## Deploy ke Production (Vercel)
+
+1. Push repo ke GitHub (`.env` sudah di-ignore).
+2. Vercel → **Add New → Project** → import repo. Vite terdeteksi otomatis (`vite build` → `dist`).
+3. Isi **Environment Variables** (Production + Preview): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_ADMIN_WA`.
+4. **Deploy** → live di `https://kalamekar.vercel.app`. Setiap push ke `main` = deploy otomatis.
+5. *(Opsional)* Domain custom: **Settings → Domains** → record `A` ke `76.76.21.21` dan `CNAME www` ke `cname.vercel-dns.com`.
+
+> ⚠️ **Keamanan:** `anon key` aman di frontend karena dilindungi RLS. `service_role` key **tidak boleh pernah** masuk repo atau kode frontend.
+
+## Alur Status Pesanan (Fase 1)
+
+```
+baru → matching → dikonfirmasi → dirakit → diantar → selesai
 ```
 
-File `.env` otomatis **tidak** ikut ter-push (sudah ada di `.gitignore`) — memang seharusnya begitu.
+Kolom `items` menyimpan rancangan kanvas pelanggan sebagai JSON — teruskan bersama screenshot ke florist agar rakitan sesuai. Status & kolom `floris` diperbarui manual via Supabase Table Editor.
 
----
+## Struktur Proyek
 
-## Langkah 5 — Deploy frontend (Vercel)
-
-1. Login [vercel.com](https://vercel.com) → **Add New → Project** → **Import** repo `kalamekar`
-2. Vercel otomatis mendeteksi Vite. Biarkan default:
-   - Build Command: `vite build` · Output Directory: `dist`
-3. Sebelum klik Deploy, buka bagian **Environment Variables** dan isi ketiga variabel yang sama persis seperti `.env`-mu:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-   - `VITE_ADMIN_WA`
-4. Klik **Deploy**. Sekitar satu menit kemudian website live di `https://kalamekar.vercel.app` (atau nama serupa).
-
-Setiap `git push` ke `main` setelah ini akan otomatis men-deploy versi baru.
-
-> Alternatif: Netlify juga bisa dengan cara serupa (build command `npm run build`, publish directory `dist`, env variables sama).
-
----
-
-## Langkah 6 — Domain custom (opsional, satu-satunya yang berbayar)
-
-1. Beli domain (mis. `kalamekar.id` / `kalamekar.com`) di registrar mana pun — Cloudflare Registrar, Niagahoster, Domainesia, dll. Kisaran Rp150–300rb/tahun.
-2. Di Vercel: **Project → Settings → Domains → Add** → masukkan domainmu.
-3. Ikuti instruksi DNS yang Vercel tampilkan (biasanya record `A` ke `76.76.21.21` dan `CNAME www` ke `cname.vercel-dns.com`) — atur di dashboard registrarmu.
-4. Tunggu propagasi (menit–jam). HTTPS otomatis aktif.
-
----
-
-## Operasional harian Fase 1 (concierge)
-
-1. Pesanan baru masuk → muncul di Supabase **Table Editor → orders** dengan `status = baru`. Pelanggan juga bisa menekan tombol WhatsApp di halaman tracking, jadi notifikasi datang langsung ke WA-mu.
-2. Kamu meneruskan detail order ke floris partner via WA (pakai template SOP Fase 1 yang sudah kita susun), lalu update kolom `status` di Table Editor: `matching → dikonfirmasi → dirakit → diantar → selesai`, dan isi kolom `floris`.
-3. Pembayaran pilot: konfirmasi manual via WA (transfer/QRIS statis). Kolom `metode_bayar` mencatat preferensi pelanggan.
-4. Kolom `items` menyimpan rancangan kanvas pelanggan sebagai JSON — kirimkan bersama screenshot ke floris agar rakitan sesuai.
-
-Ritme ini persis model "kamu jadi orchestrator" di deck — website mengumpulkan demand tervalidasi, datanya rapi sejak hari pertama.
-
----
+```
+kalamekar/
+├── index.html                  # entry HTML + meta SEO + Google Fonts
+├── package.json
+├── vite.config.js
+├── .env.example                # template environment variables
+├── src/
+│   ├── main.jsx                # bootstrap React + BrowserRouter
+│   ├── App.jsx                 # routing + layout (Navbar, Footer, CartProvider)
+│   ├── lib/
+│   │   ├── theme.js            # 🎨 design tokens (warna, font, helper rupiah)
+│   │   └── supabase.js         # koneksi DB (auto mode-demo bila env kosong)
+│   ├── context/
+│   │   └── CartContext.jsx     # state keranjang global
+│   ├── components/
+│   │   ├── GlobalStyle.jsx     # seluruh CSS utility (.rk-*)
+│   │   ├── Navbar.jsx
+│   │   └── Footer.jsx
+│   └── pages/
+│       ├── Home.jsx            # beranda marketplace
+│       ├── ProductList.jsx     # katalog /produk
+│       ├── ProductDetail.jsx   # detail /produk/:slug
+│       ├── BouquetBuilder.jsx  # kanvas rangkai /builder
+│       ├── Cart.jsx            # /keranjang
+│       ├── Checkout.jsx        # /checkout
+│       └── About.jsx           # /tentang
+└── supabase/
+    └── schema.sql              # skema DB + RLS — jalankan di SQL Editor
+```
 
 ## Troubleshooting
 
 | Gejala | Penyebab & solusi |
 |---|---|
-| Muncul "Mode demo — pesanan tidak disimpan" | Env Supabase belum terbaca. Cek nama variabel diawali `VITE_`, lalu restart dev server / redeploy di Vercel. |
-| "Pesanan gagal disimpan: new row violates row-level security policy" | Policy insert belum ada. Jalankan ulang `supabase/schema.sql` di SQL Editor. |
-| "Pesanan gagal disimpan: relation \"orders\" does not exist" | Skema belum dijalankan, atau dijalankan di project Supabase yang berbeda dari URL di env. |
-| Tombol WhatsApp tidak muncul di tracking | `VITE_ADMIN_WA` kosong atau formatnya salah — gunakan `628...` tanpa `+`, spasi, atau strip. |
-| Berhasil di laptop, gagal di Vercel | Env variables di Vercel belum diisi/typo. Setelah mengubah env, wajib **Redeploy**. |
+| "Mode demo — pesanan tidak disimpan" | Env Supabase belum terbaca. Pastikan variabel diawali `VITE_`, lalu restart dev server / redeploy. |
+| `violates row-level security policy` | Policy insert belum ada — jalankan ulang `supabase/schema.sql`. |
+| `relation "orders" does not exist` | Skema belum dijalankan, atau env menunjuk project Supabase berbeda. |
+| Tombol WhatsApp tidak muncul | `VITE_ADMIN_WA` kosong/salah format — gunakan `628...` tanpa `+`, spasi, atau strip. |
+| Jalan di laptop, gagal di Vercel | Env variables di Vercel belum diisi/typo. Setelah mengubah env, wajib **Redeploy**. |
+
+## Roadmap → Fase 2 (Otomasi)
+
+Fondasi saat ini tinggal diperluas tanpa ganti stack:
+
+1. **Pembayaran otomatis** — Midtrans Snap / Xendit Invoice; webhook ditangani Supabase Edge Functions.
+2. **Matching otomatis** — aktifkan blok `florists` + PostGIS di `schema.sql`, query florist dalam radius alamat pelanggan.
+3. **Notifikasi florist** — WhatsApp Business API (BSP: Qontak/Wati) menggantikan forward manual.
+4. **Dashboard florist & buyer** — Supabase Auth + RLS per-florist untuk kelola pesanan langsung.
+
+## Kontribusi
+
+Proyek ini dikembangkan secara privat. Alur kerja internal:
+
+```bash
+git checkout -b fitur/nama-fitur   # kerja di branch
+npm run build && npm run preview   # verifikasi build sebelum PR
+# buka PR → review → merge ke main → auto-deploy Vercel
+```
 
 ---
 
-## Roadmap teknis menuju Fase 2 (Otomasi)
+<div align="center">
 
-Ketika gate criteria Fase 1 terpenuhi, fondasi ini tinggal diperluas — tanpa ganti stack:
+Dibuat dengan 🌸 untuk memekarkan UMKM florist Indonesia
 
-1. **Pembayaran otomatis** — integrasi Midtrans Snap / Xendit Invoice. Callback/webhook-nya ditangani **Supabase Edge Functions** (serverless, satu project yang sama). Catatan: Midtrans/Xendit bukan escrow murni — di pilot, "escrow" berarti dana masuk rekening platform dulu dan payout ke floris dilakukan manual setelah bunga diterima; otomatisasi payout (disbursement API) menyusul di Fase 2.
-2. **Matching otomatis** — aktifkan blok `florists` + PostGIS yang sudah disiapkan (dikomentari) di `schema.sql`, lalu query floris dalam radius alamat pelanggan.
-3. **Notifikasi floris** — WhatsApp Business API (via BSP seperti Qontak/Wati) menggantikan forward manual.
-4. **Dashboard floris** — halaman login floris membaca tabel `orders` dengan RLS per-floris (Supabase Auth).
+**[kalamekar.id](https://kalamekar.id)** · Fase 1 Concierge · © 2026 Kalamekar
 
----
-
-## Struktur proyek
-
-```
-kalamekar/
-├── index.html              # entry HTML + meta SEO dasar
-├── package.json
-├── vite.config.js
-├── .env.example            # template environment variables
-├── src/
-│   ├── main.jsx            # bootstrap React
-│   ├── App.jsx             # seluruh aplikasi (builder, checkout, tracking)
-│   └── lib/supabase.js     # koneksi database (auto mode-demo bila env kosong)
-└── supabase/
-    └── schema.sql          # skema database + RLS, jalankan di SQL Editor
-```
+</div>
