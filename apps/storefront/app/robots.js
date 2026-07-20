@@ -3,7 +3,7 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/akun", "/mitra", "/admin", "/masuk", "/daftar"],
+      disallow: ["/akun", "/mitra", "/admin", "/masuk", "/daftar", "/reset-password"],
     },
     sitemap: "https://kalamekar.id/sitemap.xml",
   };
