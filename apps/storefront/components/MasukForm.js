@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LogIn } from "lucide-react";
+import { LogIn, User, Flower2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 
 const fieldStyle = {
@@ -14,12 +14,15 @@ const labelStyle = { display: "block", fontSize: 13, fontWeight: 700, color: "va
 export default function MasukForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/akun";
+  const redirectParam = searchParams.get("redirect");
 
+  const [role, setRole] = useState(redirectParam?.startsWith("/mitra") ? "florist" : "pembeli");
   const [form, setForm] = useState({ email: "", password: "" });
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
   const [sending, setSending] = useState(false);
+
+  const redirectTo = redirectParam || (role === "florist" ? "/mitra" : "/akun");
 
   function update(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -73,6 +76,40 @@ export default function MasukForm() {
 
   return (
     <form onSubmit={handleSubmit} className="rk-card" style={{ padding: 28, display: "grid", gap: 18, maxWidth: 420, margin: "0 auto" }}>
+      <div>
+        <label style={labelStyle}>Masuk sebagai</label>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => setRole("pembeli")}
+            aria-pressed={role === "pembeli"}
+            className="rk-chip"
+            style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "10px 12px", fontSize: 13.5, fontWeight: 700, color: role === "pembeli" ? "var(--rk-maroon)" : "var(--rk-ink-soft)",
+              borderColor: role === "pembeli" ? "var(--rk-maroon)" : undefined,
+              boxShadow: role === "pembeli" ? "0 0 0 2px var(--rk-maroon) inset" : undefined,
+            }}
+          >
+            <User size={15} /> Pembeli
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("florist")}
+            aria-pressed={role === "florist"}
+            className="rk-chip"
+            style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "10px 12px", fontSize: 13.5, fontWeight: 700, color: role === "florist" ? "var(--rk-maroon)" : "var(--rk-ink-soft)",
+              borderColor: role === "florist" ? "var(--rk-maroon)" : undefined,
+              boxShadow: role === "florist" ? "0 0 0 2px var(--rk-maroon) inset" : undefined,
+            }}
+          >
+            <Flower2 size={15} /> Florist
+          </button>
+        </div>
+      </div>
+
       <div>
         <label style={labelStyle} htmlFor="masuk-email">Email</label>
         <input id="masuk-email" style={fieldStyle} type="email" required value={form.email} onChange={update("email")} placeholder="nama@email.com" />
