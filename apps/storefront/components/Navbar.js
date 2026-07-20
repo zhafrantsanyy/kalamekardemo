@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Leaf, Wand2, Menu, X, ChevronDown } from "lucide-react";
+import { Leaf, Wand2, Menu, X, ChevronDown, LogIn } from "lucide-react";
 import { BUILDER_URL } from "@kalamekar/shared/tokens";
 import { KATEGORI_LIST } from "@/lib/data/kategori";
 import { MOMEN_DISPLAY_GROUPS, MOMEN_DATA } from "@/lib/data/momen";
@@ -16,20 +16,17 @@ function momenGroupColumns(labels) {
   }));
 }
 
-const KATEGORI_COLUMNS = [{ items: KATEGORI_LIST.map((k) => ({ label: k.nama, href: `/kategori#${k.id}` })) }];
-const MOMEN_COLUMNS = momenGroupColumns(["Momen Personal", "Acara & Formal", "Korporat"]);
-const DUKA_CITA_COLUMNS = momenGroupColumns(["Duka Cita & Religi"]);
+const PRODUK_COLUMNS = [{ items: KATEGORI_LIST.map((k) => ({ label: k.nama, href: `/kategori#${k.id}` })) }];
+const MOMEN_COLUMNS = momenGroupColumns(["Momen Personal", "Acara & Formal", "Korporat", "Duka Cita & Religi"]);
 const TOKO_BUNGA_COLUMNS = [
   { label: "Kota Utama", items: LIVE_KOTA_SLUGS.map((slug) => ({ label: KOTA_DATA[slug].nama, href: `/toko-bunga/${slug}` })) },
   { label: "Wilayah Jakarta", items: JAKARTA_SUBAREA_SLUGS.map((slug) => ({ label: KOTA_DATA[slug].nama, href: `/toko-bunga/${slug}` })) },
 ];
 
 const NAV_ITEMS = [
-  { type: "dropdown", key: "kategori", label: "Kategori", wide: false, columns: KATEGORI_COLUMNS, footerLink: { label: "Lihat Semua Kategori", href: "/kategori" } },
+  { type: "dropdown", key: "produk", label: "Produk", wide: false, columns: PRODUK_COLUMNS, footerLink: { label: "Lihat Semua Kategori", href: "/kategori" } },
   { type: "dropdown", key: "momen", label: "Momen", wide: true, columns: MOMEN_COLUMNS, footerLink: { label: "Lihat Semua Momen", href: "/momen" } },
-  { type: "dropdown", key: "duka-cita", label: "Duka Cita & Religi", wide: false, columns: DUKA_CITA_COLUMNS, footerLink: null, align: "right" },
   { type: "dropdown", key: "toko-bunga", label: "Toko Bunga", wide: true, columns: TOKO_BUNGA_COLUMNS, footerLink: { label: "Lihat Semua Kota", href: "/toko-bunga" }, align: "right" },
-  { type: "link", label: "Blog", href: "/blog" },
   { type: "link", label: "Untuk Florist", href: "/untuk-florist" },
   { type: "link", label: "Tentang Kami", href: "/tentang-kami" },
 ];
@@ -77,16 +74,16 @@ export default function Navbar() {
 
   return (
     <header style={{ background: "rgba(255,255,255,.92)", backdropFilter: "blur(8px)", position: "sticky", top: 0, zIndex: 50, borderBottom: "1px solid var(--rk-line)" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "12px 18px", display: "flex", alignItems: "center", gap: 18, position: "relative" }}>
-        <Link href="/" onClick={() => setMobileOpen(false)} style={{ display: "flex", alignItems: "center", gap: 9, textDecoration: "none" }}>
-          <span style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--rk-rose-soft)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Leaf size={17} color="var(--rk-maroon)" />
+      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "10px 18px", display: "flex", alignItems: "center", gap: 14, position: "relative" }}>
+        <Link href="/" onClick={() => setMobileOpen(false)} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none" }}>
+          <span style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--rk-rose-soft)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Leaf size={15} color="var(--rk-maroon)" />
           </span>
-          <span className="rk-serif" style={{ color: "var(--rk-maroon-deep)", fontSize: 20, fontWeight: 700, letterSpacing: 0.4 }}>Kalamekar</span>
+          <span className="rk-serif" style={{ color: "var(--rk-maroon-deep)", fontSize: 19, fontWeight: 700, letterSpacing: 0.4 }}>Kalamekar</span>
         </Link>
 
-        <nav style={{ display: "flex", gap: 16, marginLeft: "auto", alignItems: "center" }}>
-          <div ref={navRef} className="rk-hide-sm" style={{ display: "flex", gap: 14, alignItems: "center" }}>
+        <nav style={{ display: "flex", gap: 12, marginLeft: "auto", alignItems: "center" }}>
+          <div ref={navRef} className="rk-hide-sm" style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {NAV_ITEMS.map((item) =>
               item.type === "link" ? (
                 <Link
@@ -147,6 +144,10 @@ export default function Navbar() {
               )
             )}
           </div>
+
+          <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href="/masuk">
+            <LogIn size={16} /> Masuk
+          </Link>
 
           <a className="rk-btn rk-btn-primary rk-hide-sm" style={{ padding: "9px 18px", fontSize: 14, textDecoration: "none" }} href={BUILDER_URL}>
             <Wand2 size={16} /> Desain Buket
@@ -222,14 +223,24 @@ export default function Navbar() {
               )
             )}
             <div className="rk-nav-mobile-divider" />
-            <a
-              className="rk-btn rk-btn-primary"
-              style={{ padding: "10px 18px", fontSize: 14, textDecoration: "none", justifyContent: "center" }}
-              href={BUILDER_URL}
-              onClick={() => setMobileOpen(false)}
-            >
-              <Wand2 size={16} /> Desain Buket
-            </a>
+            <div style={{ display: "flex", gap: 10 }}>
+              <Link
+                className="rk-btn rk-btn-ghost"
+                style={{ padding: "10px 16px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
+                href="/masuk"
+                onClick={() => setMobileOpen(false)}
+              >
+                <LogIn size={16} /> Masuk
+              </Link>
+              <a
+                className="rk-btn rk-btn-primary"
+                style={{ padding: "10px 18px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
+                href={BUILDER_URL}
+                onClick={() => setMobileOpen(false)}
+              >
+                <Wand2 size={16} /> Desain Buket
+              </a>
+            </div>
           </div>
         )}
       </div>
