@@ -36,7 +36,13 @@ export default function DaftarForm() {
     const { data, error } = await supabase.auth.signUp({
       email: form.email.trim(),
       password: form.password,
-      options: { data: { nama: form.nama.trim() } },
+      options: {
+        data: { nama: form.nama.trim() },
+        // Tanpa ini, link konfirmasi email jatuh ke Site URL default di
+        // project Supabase (bisa nyangkut di localhost kalau belum diubah
+        // untuk production) — set eksplisit supaya benar di environment mana pun.
+        emailRedirectTo: `${window.location.origin}/masuk`,
+      },
     });
 
     if (error) {

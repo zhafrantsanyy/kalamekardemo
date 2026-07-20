@@ -58,7 +58,9 @@ export default function MasukForm() {
     setSending(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(form.email.trim());
+    const { error } = await supabase.auth.resetPasswordForEmail(form.email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
 
     setSending(false);
 
