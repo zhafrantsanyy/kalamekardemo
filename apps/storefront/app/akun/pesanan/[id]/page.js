@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Phone, Calendar, Clock, StickyNote } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { rupiah } from "@/lib/catalog";
+import PapanBungaOrderSummary, { OrderPriceDisplay } from "@/components/PapanBungaOrderSummary";
 import OrderTrackingLive from "@/components/akun/OrderTrackingLive";
 
 export default async function AkunOrderDetailPage({ params }) {
@@ -29,7 +29,7 @@ export default async function AkunOrderDetailPage({ params }) {
       <div className="rk-card" style={{ padding: 22, display: "grid", gap: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
           <div style={{ fontWeight: 800, fontSize: 18, color: "var(--rk-maroon-deep)" }}>{order.kode}</div>
-          <div style={{ fontWeight: 800, fontSize: 17, color: "var(--rk-maroon)" }}>{rupiah(order.total)}</div>
+          <div style={{ fontWeight: 800, fontSize: 17, color: "var(--rk-maroon)" }}><OrderPriceDisplay order={order} /></div>
         </div>
         <div style={{ display: "grid", gap: 8, fontSize: 13.5, color: "var(--rk-ink)" }}>
           <div style={{ display: "flex", gap: 8 }}>
@@ -54,6 +54,18 @@ export default async function AkunOrderDetailPage({ params }) {
           )}
         </div>
       </div>
+
+      {order.product_type === "papan_bunga" && (
+        <div className="rk-card" style={{ padding: 22 }}>
+          <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Rancangan papan bunga</div>
+          <PapanBungaOrderSummary order={order} />
+          {order.harga_final == null && (
+            <p style={{ fontSize: 12.5, color: "var(--rk-ink-soft)", marginTop: 14, lineHeight: 1.5 }}>
+              Harga final belum ditetapkan floris. Kami akan menghubungimu via WhatsApp begitu harga disepakati, sebelum pesanan lanjut ke status &ldquo;Dikonfirmasi&rdquo;.
+            </p>
+          )}
+        </div>
+      )}
 
       <OrderTrackingLive initialOrder={order} />
     </div>

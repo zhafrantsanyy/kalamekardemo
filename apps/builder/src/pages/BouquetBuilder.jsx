@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
   Flower2, Trash2, RotateCw, Plus, Minus, Copy, ArrowUp, Sparkles,
   ShoppingBag, MapPin, Star, Truck, Camera, Check, ChevronLeft,
-  MessageCircle, Wand2, Eraser, Store, Route, CreditCard, Heart,
+  MessageCircle, Wand2, Eraser, Store, Route, CreditCard, Heart, LayoutTemplate, LayoutGrid,
 } from "lucide-react";
 import { C, serif, rupiah, clamp, uid } from "../lib/theme";
 import { FLOWERS, FMAP, WRAPS, BASES, SIZES, ONGKIR } from "../lib/catalog";
@@ -125,7 +125,7 @@ function Stage({ items, mode, wrap, base, sizeCfg, selectedId, onSelect, onDragT
 
 /* ---------------- Builder canvas step ---------------- */
 
-function BuilderCanvasStep({ design, setDesign, go }) {
+function BuilderCanvasStep({ design, setDesign, go, onSwitchProduk }) {
   const { items, mode, wrapId, baseId, sizeId } = design;
   const [selectedId, setSelectedId] = useState(null);
   const wrap = WRAPS.find((w) => w.id === wrapId);
@@ -223,6 +223,20 @@ function BuilderCanvasStep({ design, setDesign, go }) {
               <Ic size={16} /> {l}
             </button>
           ))}
+          {onSwitchProduk && (
+            <>
+              <button className="rk-chip"
+                style={{ padding: "9px 16px", display: "flex", alignItems: "center", gap: 7, fontWeight: 700, fontSize: 14, color: C.inkSoft }}
+                onClick={() => onSwitchProduk("papan_bunga")}>
+                <LayoutTemplate size={16} /> Papan Bunga
+              </button>
+              <button className="rk-chip"
+                style={{ padding: "9px 16px", display: "flex", alignItems: "center", gap: 7, fontWeight: 700, fontSize: 14, color: C.inkSoft }}
+                onClick={() => onSwitchProduk("kustom")}>
+                <LayoutGrid size={16} /> Rangkai Bebas
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -637,7 +651,7 @@ function BuilderTrackingStep({ design, order, go }) {
 
 /* ---------------- Bouquet builder page (route: /builder) ---------------- */
 
-export default function BouquetBuilder() {
+export default function BouquetBuilder({ onSwitchProduk }) {
   const [design, setDesign] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get("mode");
@@ -657,7 +671,7 @@ export default function BouquetBuilder() {
 
   return (
     <>
-      {step === "builder" && <BuilderCanvasStep design={design} setDesign={setDesign} go={goStep} />}
+      {step === "builder" && <BuilderCanvasStep design={design} setDesign={setDesign} go={goStep} onSwitchProduk={onSwitchProduk} />}
       {step === "checkout" && <BuilderCheckoutStep design={design} go={goStep} setOrder={setOrder} />}
       {step === "tracking" && order && <BuilderTrackingStep design={design} order={order} go={goStep} />}
     </>

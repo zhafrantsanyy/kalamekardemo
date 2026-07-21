@@ -17,11 +17,17 @@ export async function POST(request, { params }) {
   const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
-    .select("id, status_log")
+    .select("id, status_log, product_type, harga_final")
     .eq("id", id)
     .maybeSingle();
   if (!order) {
     return NextResponse.json({ error: "Order tidak ditemukan." }, { status: 404 });
+  }
+  if (status === "dikonfirmasi" && order.product_type === "papan_bunga" && order.harga_final == null) {
+    return NextResponse.json(
+      { error: "Order papan bunga ini belum punya harga final dari floris." },
+      { status: 409 }
+    );
   }
 
   const prevLog = Array.isArray(order.status_log) ? order.status_log : [];

@@ -2,10 +2,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Phone, Calendar, Clock, StickyNote, History } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { rupiah } from "@/lib/catalog";
 import { STATUS_LABEL } from "@/lib/orderFlow";
 import StatusBadge from "@/components/StatusBadge";
 import OrderCanvasPreview from "@/components/OrderCanvasPreview";
+import PapanBungaOrderSummary, { OrderPriceDisplay } from "@/components/PapanBungaOrderSummary";
 import AssignFlorisForm from "@/components/admin/AssignFlorisForm";
 import StatusOverrideForm from "@/components/admin/StatusOverrideForm";
 
@@ -36,7 +36,7 @@ export default async function AdminOrderDetailPage({ params }) {
             <div style={{ fontWeight: 800, fontSize: 18, color: "var(--rk-maroon-deep)" }}>{order.kode}</div>
             <div style={{ marginTop: 6 }}><StatusBadge status={order.status} /></div>
           </div>
-          <div style={{ fontWeight: 800, fontSize: 17, color: "var(--rk-maroon)" }}>{rupiah(order.total)}</div>
+          <div style={{ fontWeight: 800, fontSize: 17, color: "var(--rk-maroon)" }}><OrderPriceDisplay order={order} /></div>
         </div>
         <div style={{ display: "grid", gap: 8, fontSize: 13.5, color: "var(--rk-ink)" }}>
           <div style={{ display: "flex", gap: 8 }}>
@@ -64,9 +64,13 @@ export default async function AdminOrderDetailPage({ params }) {
 
       <div className="rk-card" style={{ padding: 22 }}>
         <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Rancangan</div>
-        <div style={{ maxWidth: 240, margin: "0 auto" }}>
-          <OrderCanvasPreview items={order.items} mode={order.mode} />
-        </div>
+        {order.product_type === "papan_bunga" ? (
+          <PapanBungaOrderSummary order={order} />
+        ) : (
+          <div style={{ maxWidth: 240, margin: "0 auto" }}>
+            <OrderCanvasPreview items={order.items} mode={order.mode} />
+          </div>
+        )}
       </div>
 
       <div className="rk-card" style={{ padding: 22 }}>

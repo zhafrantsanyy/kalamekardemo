@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, MapPin, Phone, Calendar, Clock, StickyNote } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { rupiah } from "@/lib/catalog";
 import { ACTION_LABEL, nextStatus } from "@/lib/orderFlow";
 import StatusBadge from "@/components/StatusBadge";
 import OrderCanvasPreview from "@/components/OrderCanvasPreview";
-import { MajuStatusButton } from "@/components/mitra/OrderActionButtons";
+import PapanBungaOrderSummary, { OrderPriceDisplay } from "@/components/PapanBungaOrderSummary";
+import { MajuStatusButton, SetHargaFinalForm } from "@/components/mitra/OrderActionButtons";
 import UploadFotoForm from "@/components/mitra/UploadFotoForm";
 
 export default async function MitraOrderDetailPage({ params }) {
@@ -33,6 +33,8 @@ export default async function MitraOrderDetailPage({ params }) {
 
   const next = nextStatus(order.status);
   const showFotoUpload = order.status === "dirakit";
+  const isPapanBunga = order.product_type === "papan_bunga";
+  const needsHargaFinal = isPapanBunga && order.status === "matching" && order.harga_final == null;
 
   return (
     <div style={{ display: "grid", gap: 20 }}>
@@ -47,8 +49,8 @@ export default async function MitraOrderDetailPage({ params }) {
             <div style={{ marginTop: 6 }}><StatusBadge status={order.status} /></div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontWeight: 800, fontSize: 17, color: "var(--rk-maroon)" }}>{rupiah(order.subtotal)}</div>
-            <div style={{ fontSize: 11.5, color: "var(--rk-ink-soft)" }}>Nilai untuk floris</div>
+            <div style={{ fontWeight: 800, fontSize: 17, color: "var(--rk-maroon)" }}><OrderPriceDisplay order={order} /></div>
+            <div style={{ fontSize: 11.5, color: "var(--rk-ink-soft)" }}>{needsHargaFinal ? "Kamu yang tentukan harga" : "Nilai untuk floris"}</div>
           </div>
         </div>
 
@@ -78,12 +80,23 @@ export default async function MitraOrderDetailPage({ params }) {
 
       <div className="rk-card" style={{ padding: 22 }}>
         <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Rancangan</div>
-        <div style={{ maxWidth: 280, margin: "0 auto" }}>
-          <OrderCanvasPreview items={order.items} mode={order.mode} />
-        </div>
+        {isPapanBunga ? (
+          <PapanBungaOrderSummary order={order} />
+        ) : (
+          <div style={{ maxWidth: 280, margin: "0 auto" }}>
+            <OrderCanvasPreview items={order.items} mode={order.mode} />
+          </div>
+        )}
       </div>
 
-      {order.status !== "selesai" && order.status !== "batal" && next && (
+      {needsHargaFinal && (
+        <div className="rk-card" style={{ padding: 22 }}>
+          <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Tetapkan harga final</div>
+          <SetHargaFinalForm orderId={order.id} />
+        </div>
+      )}
+
+      {order.status !== "selesai" && order.status !== "batal" && next && !needsHargaFinal && (
         <div className="rk-card" style={{ padding: 22 }}>
           <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Update status</div>
           <MajuStatusButton orderId={order.id} label={ACTION_LABEL[order.status] || `Lanjut ke ${next}`} />

@@ -34,7 +34,7 @@ export async function POST(request, { params }) {
   const admin = createAdminClient();
   const { data: order, error: orderErr } = await admin
     .from("orders")
-    .select("id, status, floris_id, status_log")
+    .select("id, status, floris_id, status_log, product_type, harga_final")
     .eq("id", id)
     .maybeSingle();
 
@@ -70,6 +70,12 @@ export async function POST(request, { params }) {
   const next = nextStatus(order.status);
   if (!next) {
     return NextResponse.json({ error: "Tidak ada tahap berikutnya." }, { status: 409 });
+  }
+  if (next === "dikonfirmasi" && order.product_type === "papan_bunga" && order.harga_final == null) {
+    return NextResponse.json(
+      { error: "Isi harga final dulu sebelum order ini bisa dikonfirmasi." },
+      { status: 409 }
+    );
   }
   const { error } = await admin
     .from("orders")

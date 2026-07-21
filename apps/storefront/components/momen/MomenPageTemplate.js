@@ -12,7 +12,24 @@ const KELOMPOK_LABEL = {
   korporat: "Kebutuhan Korporat",
 };
 
+// Slug halaman papan bunga -> id KategoriAcara di wizard builder
+// (apps/builder/src/data/papanBungaTemplates.js). Dipakai untuk deep-link
+// CTA supaya wizard langsung terbuka dengan kategori acara yang cocok.
+const PAPAN_BUNGA_KATEGORI_BY_SLUG = {
+  "papan-bunga-grand-opening": "grand_opening",
+  "papan-bunga-pernikahan": "wedding",
+  "papan-bunga-selamat-sukses": "pelantikan_wisuda",
+  "papan-bunga-anniversary-perusahaan": "lainnya",
+  "papan-bunga-duka-cita": "duka_cita",
+  "papan-bunga-ulang-tahun": "ulang_tahun",
+};
+
 export default function MomenPageTemplate({ data }) {
+  const papanBungaKategori = PAPAN_BUNGA_KATEGORI_BY_SLUG[data.slug];
+  const builderHref = papanBungaKategori
+    ? `${BUILDER_URL}?produk=papan_bunga&kategori=${papanBungaKategori}`
+    : BUILDER_URL;
+
   const trail = [
     { name: "Beranda", href: "/" },
     { name: "Moments", href: "/momen" },
@@ -80,7 +97,7 @@ export default function MomenPageTemplate({ data }) {
           <p style={{ fontSize: 16, lineHeight: 1.65, color: "var(--rk-ink-soft)", maxWidth: 680 }}>
             {data.intro}
           </p>
-          <a className="rk-btn rk-btn-primary" style={{ padding: "13px 24px", fontSize: 14.5, marginTop: 24, textDecoration: "none" }} href={BUILDER_URL}>
+          <a className="rk-btn rk-btn-primary" style={{ padding: "13px 24px", fontSize: 14.5, marginTop: 24, textDecoration: "none" }} href={builderHref}>
             Mulai Rangkai {data.nama}
           </a>
         </div>
