@@ -5,6 +5,7 @@ import { SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import { KOTA_DATA } from "@/lib/data/kota";
 import { createClient } from "@/lib/supabase/public";
 import FloristPhotoPlaceholder from "@/components/FloristPhotoPlaceholder";
+import TambahKeKeranjangButton from "@/components/toko-bunga/TambahKeKeranjangButton";
 
 export const revalidate = 3600;
 
@@ -171,6 +172,7 @@ export default async function FloristProfilePage({ params }) {
                         <div style={{ marginTop: 10, fontWeight: 800, fontSize: 15, color: "var(--rk-maroon)" }}>
                           Rp {p.harga.toLocaleString("id-ID")}
                         </div>
+                        <TambahKeKeranjangButton productId={p.id} />
                       </div>
                     </div>
                   ))}
