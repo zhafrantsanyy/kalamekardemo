@@ -8,11 +8,12 @@ export async function POST(request) {
   const email = typeof body?.email === "string" ? body.email.trim() : "";
   const wa = typeof body?.wa === "string" ? body.wa.trim() : "";
   const kota = typeof body?.kota === "string" ? body.kota.trim() : "";
+  const kecamatan = typeof body?.kecamatan === "string" ? body.kecamatan.trim() : "";
   const alamat = typeof body?.alamat === "string" ? body.alamat.trim() : "";
   const pengalaman = typeof body?.pengalaman === "string" ? body.pengalaman.trim() : "";
   const instagram = typeof body?.instagram === "string" ? body.instagram.trim() : "";
 
-  if (!namaToko || !namaPemilik || !email || !wa || !kota || !alamat) {
+  if (!namaToko || !namaPemilik || !email || !wa || !kota || !kecamatan || !alamat) {
     return NextResponse.json({ error: "Mohon lengkapi semua kolom wajib." }, { status: 400 });
   }
 
@@ -23,6 +24,7 @@ export async function POST(request) {
     email,
     wa,
     kota,
+    kecamatan,
     alamat,
     pengalaman: pengalaman || null,
     instagram: instagram || null,

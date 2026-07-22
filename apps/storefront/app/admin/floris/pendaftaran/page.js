@@ -12,7 +12,7 @@ export default async function AdminFloristPendaftaranPage() {
   const supabase = await createClient();
   const { data: applications } = await supabase
     .from("florist_applications")
-    .select("id, nama_toko, nama_pemilik, email, wa, kota, alamat, instagram, pengalaman, status, created_at")
+    .select("id, nama_toko, nama_pemilik, email, wa, kota, kecamatan, alamat, instagram, pengalaman, status, created_at")
     .order("created_at", { ascending: false });
 
   return (
@@ -35,7 +35,7 @@ export default async function AdminFloristPendaftaranPage() {
                   <div>
                     <div style={{ fontWeight: 800, fontSize: 14.5, color: "var(--rk-maroon-deep)" }}>{a.nama_toko}</div>
                     <div style={{ fontSize: 12.5, color: "var(--rk-ink-soft)", marginTop: 2 }}>
-                      {a.nama_pemilik} · {a.kota}
+                      {a.nama_pemilik} · {a.kecamatan}, {a.kota}
                     </div>
                   </div>
                   <span style={{ fontSize: 11.5, fontWeight: 700, padding: "4px 10px", borderRadius: 999, background: st.bg, color: st.fg }}>
