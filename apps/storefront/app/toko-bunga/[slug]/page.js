@@ -4,9 +4,46 @@ import { MapPin, ChevronRight } from "lucide-react";
 import { BUILDER_URL, SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import FloristSection from "@/components/FloristSection";
 import { KOTA_DATA, KOTA_SLUGS, OCCASION_LINKS } from "@/lib/data/kota";
+import { createClient } from "@/lib/supabase/public";
+
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return KOTA_SLUGS.map((slug) => ({ slug }));
+}
+
+function mapFlorist(f) {
+  return {
+    id: f.id,
+    nama: f.nama,
+    meta: f.deskripsi || f.area,
+    rating: f.rating,
+    href: f.wa
+      ? `https://wa.me/${f.wa}?text=${encodeURIComponent(`Halo ${f.nama}, saya mau pesan bunga lewat Kalamekar.`)}`
+      : "#",
+  };
+}
+
+// Florist tersimpan dengan kota_slug (lihat migrasi florist_maps_postgis di
+// Supabase) — cocok langsung dengan slug sub-area Jakarta & Bekasi. Kota lain
+// (Surabaya, Bandung, dll.) belum punya florist ber-kota_slug, jadi RPC ini
+// otomatis balikin array kosong untuk kota tersebut.
+async function getFloristsForKotaPage(data) {
+  const supabase = createClient();
+
+  if (data.subAreaSlugs) {
+    // Halaman induk Jakarta: gabungkan florist dari semua sub-area-nya.
+    const { data: rows, error } = await supabase.rpc("all_florists", { p_limit: 200 });
+    if (error || !rows) return [];
+    return rows.filter((r) => data.subAreaSlugs.includes(r.kota_slug)).map(mapFlorist);
+  }
+
+  const { data: rows, error } = await supabase.rpc("florists_by_kota", {
+    p_kota_slug: data.slug,
+    p_limit: 50,
+  });
+  if (error || !rows) return [];
+  return rows.map(mapFlorist);
 }
 
 export async function generateMetadata({ params }) {
@@ -47,6 +84,7 @@ export default async function KotaPage({ params }) {
   const isSubArea = data.tipe === "sub-area";
   const induk = isSubArea ? KOTA_DATA[data.kotaIndukSlug] : null;
   const trail = breadcrumbTrail(data);
+  const florists = await getFloristsForKotaPage(data);
 
   const collectionPageJsonLd = {
     "@context": "https://schema.org",
@@ -170,7 +208,7 @@ export default async function KotaPage({ params }) {
           <h2 className="rk-serif" style={{ fontSize: 26, color: "var(--rk-maroon)", marginBottom: 18 }}>
             Florist di {data.nama}
           </h2>
-          <FloristSection cityName={data.nama} florists={[]} />
+          <FloristSection cityName={data.nama} florists={florists} />
         </div>
       </section>
 

@@ -8,7 +8,7 @@ export default function FloristSection({ cityName, florists = [] }) {
     return (
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
         {florists.map((f) => (
-          <a key={f.nama} href={f.href} className="rk-florist-card" style={{ textDecoration: "none" }}>
+          <a key={f.id || f.nama} href={f.href} target="_blank" rel="noopener noreferrer" className="rk-florist-card" style={{ textDecoration: "none" }}>
             <div className="rk-florist-photo" style={{ background: "var(--rk-cream)" }}>
               <span className="rk-badge"><BadgeCheck size={12} /> Terverifikasi</span>
             </div>
