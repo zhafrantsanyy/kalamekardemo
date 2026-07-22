@@ -56,9 +56,8 @@ export default function Sidebar({ storeName, storeArea, newOrdersCount }: Sideba
         display: "flex",
         flexDirection: "column",
         padding: "22px 16px",
-        height: "100vh",
-        position: "sticky",
-        top: 0,
+        height: "100%",
+        overflowY: "auto",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "4px 8px 22px" }}>

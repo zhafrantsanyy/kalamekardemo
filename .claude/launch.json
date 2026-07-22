@@ -13,6 +13,13 @@
       "runtimeArgs": ["apps/storefront/node_modules/next/dist/bin/next", "dev", "apps/storefront"],
       "port": 3000,
       "autoPort": true
+    },
+    {
+      "name": "kalamekar-dashboard",
+      "runtimeExecutable": "C:\\PROGRA~1\\nodejs\\node.exe",
+      "runtimeArgs": ["apps/dashboard/node_modules/next/dist/bin/next", "dev", "apps/dashboard", "-p", "3100"],
+      "port": 3100,
+      "autoPort": true
     }
   ]
 }

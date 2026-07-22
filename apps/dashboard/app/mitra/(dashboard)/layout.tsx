@@ -30,9 +30,9 @@ export default async function MitraLayout({ children }: { children: ReactNode })
   const storeArea = floris?.area || "";
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
+    <div style={{ display: "flex", height: "100vh", width: "100%" }}>
       <Sidebar storeName={storeName} storeArea={storeArea} newOrdersCount={newOrdersCount || 0} />
-      <div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
+      <div style={{ flex: 1, height: "100%", overflowY: "auto", minWidth: 0 }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "26px 32px 60px" }}>
           <Topbar storeName={storeName} notificationCount={newOrdersCount || 0} />
           {children}
