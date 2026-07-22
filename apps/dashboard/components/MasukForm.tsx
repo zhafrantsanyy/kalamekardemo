@@ -7,10 +7,18 @@ import { createClient } from "@/lib/supabase/browser";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
-export default function MasukForm() {
+interface MasukFormProps {
+  redirectDefault?: string;
+  invalidMessage?: string;
+}
+
+export default function MasukForm({
+  redirectDefault = "/mitra",
+  invalidMessage = "Email atau kata sandi salah, atau akun ini belum terdaftar sebagai mitra floris.",
+}: MasukFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/mitra";
+  const redirectTo = searchParams.get("redirect") || redirectDefault;
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [err, setErr] = useState("");
@@ -34,7 +42,7 @@ export default function MasukForm() {
     setSending(false);
 
     if (error) {
-      setErr("Email atau kata sandi salah, atau akun ini belum terdaftar sebagai mitra floris.");
+      setErr(invalidMessage);
       return;
     }
 

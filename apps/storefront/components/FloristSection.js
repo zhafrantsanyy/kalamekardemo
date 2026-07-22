@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Star, BadgeCheck, Store, ArrowRight } from "lucide-react";
+import FloristPhotoPlaceholder from "@/components/FloristPhotoPlaceholder";
 
 // florists akan datang dari Supabase begitu florist partner per kota tersedia.
 // Selama kosong, tampilkan empty state yang jujur + CTA, bukan section kosong.
@@ -8,8 +9,13 @@ export default function FloristSection({ cityName, florists = [] }) {
     return (
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 18 }}>
         {florists.map((f) => (
-          <a key={f.nama} href={f.href} className="rk-florist-card" style={{ textDecoration: "none" }}>
-            <div className="rk-florist-photo" style={{ background: "var(--rk-cream)" }}>
+          <Link key={f.id || f.nama} href={f.href} className="rk-florist-card" style={{ textDecoration: "none" }}>
+            <div className="rk-florist-photo">
+              {f.foto_url ? (
+                <img src={f.foto_url} alt={f.nama} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <FloristPhotoPlaceholder />
+              )}
               <span className="rk-badge"><BadgeCheck size={12} /> Terverifikasi</span>
             </div>
             <div style={{ padding: 16, textAlign: "left" }}>
@@ -22,7 +28,7 @@ export default function FloristSection({ cityName, florists = [] }) {
                 </div>
               )}
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     );

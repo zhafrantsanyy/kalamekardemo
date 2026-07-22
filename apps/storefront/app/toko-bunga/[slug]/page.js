@@ -4,9 +4,44 @@ import { MapPin, ChevronRight } from "lucide-react";
 import { BUILDER_URL, SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import FloristSection from "@/components/FloristSection";
 import { KOTA_DATA, KOTA_SLUGS, OCCASION_LINKS } from "@/lib/data/kota";
+import { createClient } from "@/lib/supabase/public";
+
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return KOTA_SLUGS.map((slug) => ({ slug }));
+}
+
+function mapFlorist(f) {
+  return {
+    id: f.id,
+    nama: f.nama,
+    meta: f.deskripsi || f.area,
+    rating: f.rating,
+    foto_url: f.foto_url,
+    href: `/toko-bunga/${f.kota_slug}/${f.slug}`,
+  };
+}
+
+// Florist tersimpan dengan kota_slug (lihat migrasi florist_products.sql &
+// migrasi terkait di Supabase) — cocok langsung dengan slug sub-area Jakarta
+// & Bekasi. Kota lain (Surabaya, Bandung, dll.) belum punya florist
+// ber-kota_slug, jadi query ini otomatis balikin array kosong untuk kota
+// tersebut.
+async function getFloristsForKotaPage(data) {
+  const supabase = createClient();
+  const kotaSlugs = data.subAreaSlugs || [data.slug];
+
+  const { data: rows, error } = await supabase
+    .from("florists")
+    .select("id, nama, area, deskripsi, rating, kota_slug, slug, foto_url")
+    .eq("aktif", true)
+    .in("kota_slug", kotaSlugs)
+    .order("kota_slug", { ascending: true })
+    .order("rating", { ascending: false });
+
+  if (error || !rows) return [];
+  return rows.map(mapFlorist);
 }
 
 export async function generateMetadata({ params }) {
@@ -47,6 +82,7 @@ export default async function KotaPage({ params }) {
   const isSubArea = data.tipe === "sub-area";
   const induk = isSubArea ? KOTA_DATA[data.kotaIndukSlug] : null;
   const trail = breadcrumbTrail(data);
+  const florists = await getFloristsForKotaPage(data);
 
   const collectionPageJsonLd = {
     "@context": "https://schema.org",
@@ -170,7 +206,7 @@ export default async function KotaPage({ params }) {
           <h2 className="rk-serif" style={{ fontSize: 26, color: "var(--rk-maroon)", marginBottom: 18 }}>
             Florist di {data.nama}
           </h2>
-          <FloristSection cityName={data.nama} florists={[]} />
+          <FloristSection cityName={data.nama} florists={florists} />
         </div>
       </section>
 
