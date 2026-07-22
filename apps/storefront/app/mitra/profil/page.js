@@ -9,7 +9,7 @@ export default async function MitraProfilPage() {
 
   const { data: floris } = await supabase
     .from("florists")
-    .select("id, nama, area, wa")
+    .select("id, nama, area, wa, foto_url")
     .eq("user_id", user.id)
     .maybeSingle();
 

@@ -57,6 +57,11 @@ Migrasi ada di `apps/builder/supabase/migrations/`, jalankan **berurutan** lewat
 | `04_seed_dev_akun.sql` | User pembeli dummy + 1 order guest contoh | **Tidak** — dev/staging saja |
 | `05_phase4_admin.sql` | Policy RLS admin baca semua `orders`/`florists` | Ya |
 | `06_seed_dev_admin.sql` | User admin dummy dengan `app_metadata.role = "admin"` | **Tidak** — dev/staging saja |
+| `09_florist_products.sql` | Kolom `slug` di `florists`, tabel `florist_product_categories` & `florist_products` (katalog produk per floris) | Ya |
+| `10_seed_florist_product_categories.sql` | 5 kategori produk floris (Buket, Papan Bunga, dll) | Ya |
+| `11_seed_dummy_florist_products.sql` | 5 produk dummy per floris aktif, untuk uji tampilan profil floris | **Tidak** — dev/staging saja |
+| `12_florist_foto_url.sql` | Kolom `foto_url` di `florists` (foto profil toko) | Ya |
+| `13_florist_products_owner_policies.sql` | Policy RLS: floris baca/tambah/update/hapus produk miliknya sendiri (dashboard mitra `/mitra/produk`) | Ya |
 
 Semua migrasi murni additive dan aman dijalankan berulang (idempotent).
 

@@ -7,6 +7,7 @@ const TABS = [
   { href: "/mitra", label: "Order Masuk" },
   { href: "/mitra/proses", label: "Sedang Diproses" },
   { href: "/mitra/riwayat", label: "Riwayat" },
+  { href: "/mitra/produk", label: "Produk" },
   { href: "/mitra/profil", label: "Profil" },
 ];
 

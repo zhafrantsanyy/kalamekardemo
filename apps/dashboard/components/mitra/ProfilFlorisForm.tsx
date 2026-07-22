@@ -12,6 +12,7 @@ interface Floris {
   nama: string;
   area: string | null;
   wa: string | null;
+  foto_url: string | null;
 }
 
 // Update langsung ke Supabase dari client — RLS policy "floris update
@@ -19,7 +20,12 @@ interface Floris {
 // Handler dengan service role untuk ini (beda dari mutasi status/foto).
 export default function ProfilFlorisForm({ floris }: { floris: Floris | null }) {
   const router = useRouter();
-  const [form, setForm] = useState({ nama: floris?.nama || "", area: floris?.area || "", wa: floris?.wa || "" });
+  const [form, setForm] = useState({
+    nama: floris?.nama || "",
+    area: floris?.area || "",
+    wa: floris?.wa || "",
+    foto_url: floris?.foto_url || "",
+  });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
@@ -38,7 +44,12 @@ export default function ProfilFlorisForm({ floris }: { floris: Floris | null }) 
     const supabase = createClient();
     const { error } = await supabase
       .from("florists")
-      .update({ nama: form.nama.trim(), area: form.area.trim() || null, wa: form.wa.trim() || null })
+      .update({
+        nama: form.nama.trim(),
+        area: form.area.trim() || null,
+        wa: form.wa.trim() || null,
+        foto_url: form.foto_url.trim() || null,
+      })
       .eq("id", floris.id);
 
     setSaving(false);
@@ -55,6 +66,19 @@ export default function ProfilFlorisForm({ floris }: { floris: Floris | null }) 
       <Input id="floris-nama" label="Nama studio/floris" value={form.nama} onChange={update("nama")} required />
       <Input id="floris-area" label="Area layanan" value={form.area} onChange={update("area")} placeholder="cth. Kemang, Jakarta Selatan" />
       <Input id="floris-wa" label="Nomor WhatsApp" value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
+      <div>
+        <Input
+          id="floris-foto"
+          label="URL foto toko"
+          value={form.foto_url}
+          onChange={update("foto_url")}
+          placeholder="https://..."
+          inputMode="url"
+        />
+        <p style={{ fontSize: 12, color: "var(--dm-ink-soft)", marginTop: 6 }}>
+          Kosongkan untuk pakai ilustrasi template bawaan di halaman toko-bunga.
+        </p>
+      </div>
 
       {err && <p style={{ fontSize: 13, color: "#a13d3d", fontWeight: 600 }}>{err}</p>}
       {msg && <p style={{ fontSize: 13, color: "var(--dm-forest)", fontWeight: 600 }}>{msg}</p>}

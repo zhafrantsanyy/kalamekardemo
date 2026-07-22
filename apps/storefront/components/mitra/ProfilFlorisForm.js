@@ -13,7 +13,12 @@ const labelStyle = { display: "block", fontSize: 13, fontWeight: 700, color: "va
 
 export default function ProfilFlorisForm({ floris }) {
   const router = useRouter();
-  const [form, setForm] = useState({ nama: floris?.nama || "", area: floris?.area || "", wa: floris?.wa || "" });
+  const [form, setForm] = useState({
+    nama: floris?.nama || "",
+    area: floris?.area || "",
+    wa: floris?.wa || "",
+    foto_url: floris?.foto_url || "",
+  });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
@@ -31,7 +36,12 @@ export default function ProfilFlorisForm({ floris }) {
     const supabase = createClient();
     const { error } = await supabase
       .from("florists")
-      .update({ nama: form.nama.trim(), area: form.area.trim() || null, wa: form.wa.trim() || null })
+      .update({
+        nama: form.nama.trim(),
+        area: form.area.trim() || null,
+        wa: form.wa.trim() || null,
+        foto_url: form.foto_url.trim() || null,
+      })
       .eq("id", floris.id);
 
     setSaving(false);
@@ -56,6 +66,13 @@ export default function ProfilFlorisForm({ floris }) {
       <div>
         <label style={labelStyle} htmlFor="floris-wa">Nomor WhatsApp</label>
         <input id="floris-wa" className="rk-field" style={fieldStyle} value={form.wa} onChange={update("wa")} placeholder="08xx xxxx xxxx" inputMode="tel" />
+      </div>
+      <div>
+        <label style={labelStyle} htmlFor="floris-foto">URL foto toko</label>
+        <input id="floris-foto" className="rk-field" style={fieldStyle} value={form.foto_url} onChange={update("foto_url")} placeholder="https://..." inputMode="url" />
+        <p style={{ fontSize: 12, color: "var(--rk-ink-soft)", marginTop: 6 }}>
+          Kosongkan untuk pakai ilustrasi template bawaan di halaman toko-bunga.
+        </p>
       </div>
 
       {err && <p style={{ fontSize: 13, color: "#a13d3d", fontWeight: 600 }}>{err}</p>}

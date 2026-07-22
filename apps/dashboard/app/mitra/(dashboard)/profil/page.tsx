@@ -12,7 +12,7 @@ export default async function MitraProfilPage() {
   } = await supabase.auth.getUser();
 
   const { data: floris } = user
-    ? await supabase.from("florists").select("id, nama, area, wa").eq("user_id", user.id).maybeSingle()
+    ? await supabase.from("florists").select("id, nama, area, wa, foto_url").eq("user_id", user.id).maybeSingle()
     : { data: null };
 
   return (

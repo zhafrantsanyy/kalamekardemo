@@ -18,30 +18,28 @@ function mapFlorist(f) {
     nama: f.nama,
     meta: f.deskripsi || f.area,
     rating: f.rating,
-    href: f.wa
-      ? `https://wa.me/${f.wa}?text=${encodeURIComponent(`Halo ${f.nama}, saya mau pesan bunga lewat Kalamekar.`)}`
-      : "#",
+    foto_url: f.foto_url,
+    href: `/toko-bunga/${f.kota_slug}/${f.slug}`,
   };
 }
 
-// Florist tersimpan dengan kota_slug (lihat migrasi florist_maps_postgis di
-// Supabase) — cocok langsung dengan slug sub-area Jakarta & Bekasi. Kota lain
-// (Surabaya, Bandung, dll.) belum punya florist ber-kota_slug, jadi RPC ini
-// otomatis balikin array kosong untuk kota tersebut.
+// Florist tersimpan dengan kota_slug (lihat migrasi florist_products.sql &
+// migrasi terkait di Supabase) — cocok langsung dengan slug sub-area Jakarta
+// & Bekasi. Kota lain (Surabaya, Bandung, dll.) belum punya florist
+// ber-kota_slug, jadi query ini otomatis balikin array kosong untuk kota
+// tersebut.
 async function getFloristsForKotaPage(data) {
   const supabase = createClient();
+  const kotaSlugs = data.subAreaSlugs || [data.slug];
 
-  if (data.subAreaSlugs) {
-    // Halaman induk Jakarta: gabungkan florist dari semua sub-area-nya.
-    const { data: rows, error } = await supabase.rpc("all_florists", { p_limit: 200 });
-    if (error || !rows) return [];
-    return rows.filter((r) => data.subAreaSlugs.includes(r.kota_slug)).map(mapFlorist);
-  }
+  const { data: rows, error } = await supabase
+    .from("florists")
+    .select("id, nama, area, deskripsi, rating, kota_slug, slug, foto_url")
+    .eq("aktif", true)
+    .in("kota_slug", kotaSlugs)
+    .order("kota_slug", { ascending: true })
+    .order("rating", { ascending: false });
 
-  const { data: rows, error } = await supabase.rpc("florists_by_kota", {
-    p_kota_slug: data.slug,
-    p_limit: 50,
-  });
   if (error || !rows) return [];
   return rows.map(mapFlorist);
 }
