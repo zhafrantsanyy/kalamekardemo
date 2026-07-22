@@ -5,6 +5,7 @@
   "type": "module",
   "main": "tokens.js",
   "exports": {
-    "./tokens": "./tokens.js"
+    "./tokens": "./tokens.js",
+    "./catalog": "./catalog.js"
   }
 }

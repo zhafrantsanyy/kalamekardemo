@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { ChevronRight, Check, MapPin } from "lucide-react";
-import { BUILDER_URL } from "@kalamekar/shared/tokens";
+import { BUILDER_URL, SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import { LIVE_KOTA_SLUGS, KOTA_DATA } from "@/lib/data/kota";
-
-const BASE_URL = "https://kalamekar.id";
 
 const KELOMPOK_LABEL = {
   personal: "Momen Personal",

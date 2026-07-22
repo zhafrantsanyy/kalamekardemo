@@ -82,6 +82,12 @@ Salin `.env.example` menjadi `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...   # HANYA dipakai di Route Handler /api/**, jangan pernah di kode client
+
+NEXT_PUBLIC_SITE_URL=...        # domain storefront ini sendiri, dipakai metadata/sitemap/JSON-LD
+NEXT_PUBLIC_BUILDER_URL=...     # workspace apps/builder
+NEXT_PUBLIC_APP_URL=...         # workspace apps/dashboard (dashboard mitra)
 ```
 
-Di Vercel, isi ketiganya lewat **Project Settings → Environment Variables**.
+Di Vercel, isi semuanya lewat **Project Settings → Environment Variables**. Ketiga URL lintas-workspace dibaca dari `packages/shared/tokens.js` (`SITE_URL`, `BUILDER_URL`, `APP_URL`) — jangan pernah hardcode domain ini langsung di kode, selalu impor dari sana.
+
+> **Catatan migrasi dashboard mitra**: `/mitra` di storefront ini masih berfungsi penuh dan BELUM dinonaktifkan — akan dialihkan ke `apps/dashboard` (lihat root README) setelah workspace itu diverifikasi end-to-end. `/admin` sudah dinonaktifkan sementara di `middleware.js` (kode dibiarkan utuh, hanya aksesnya ditutup) sambil menunggu dipindah — **artinya form "Tambah floris baru" di `/admin/floris` juga ikut tidak bisa diakses**, jadi selama masa transisi ini tidak ada cara UI untuk membuat akun floris baru. Buat manual lewat Supabase Dashboard kalau ada floris baru yang perlu onboarding sebelum admin dipindah/diaktifkan lagi.

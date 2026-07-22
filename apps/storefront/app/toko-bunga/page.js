@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin, ChevronRight } from "lucide-react";
+import { SITE_URL } from "@kalamekar/shared/tokens";
 import { LIVE_KOTA_SLUGS } from "@/lib/data/kota";
 
 export const metadata = {
@@ -11,7 +12,7 @@ export const metadata = {
     title: "Direktori Toko Bunga di Seluruh Indonesia | Kalamekar",
     description:
       "Cari toko bunga terverifikasi di kotamu. Dari Jakarta sampai Makassar, pesan mudah lewat WhatsApp dan bunga sampai hari ini juga.",
-    url: "https://kalamekar.id/toko-bunga",
+    url: `${SITE_URL}/toko-bunga`,
     type: "website",
   },
 };
@@ -57,7 +58,7 @@ const collectionPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "Direktori Toko Bunga di Seluruh Indonesia",
-  url: "https://kalamekar.id/toko-bunga",
+  url: `${SITE_URL}/toko-bunga`,
   description: "Direktori toko bunga dan florist lokal terverifikasi di kota-kota Indonesia.",
 };
 
@@ -65,8 +66,8 @@ const breadcrumbJsonLd = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Beranda", item: "https://kalamekar.id/" },
-    { "@type": "ListItem", position: 2, name: "Toko Bunga", item: "https://kalamekar.id/toko-bunga" },
+    { "@type": "ListItem", position: 1, name: "Beranda", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Toko Bunga", item: `${SITE_URL}/toko-bunga` },
   ],
 };
 

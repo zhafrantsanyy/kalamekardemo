@@ -1,3 +1,5 @@
+import { SITE_URL } from "@kalamekar/shared/tokens";
+
 export default function robots() {
   return {
     rules: {
@@ -5,6 +7,6 @@ export default function robots() {
       allow: "/",
       disallow: ["/akun", "/mitra", "/admin", "/masuk", "/daftar", "/reset-password"],
     },
-    sitemap: "https://kalamekar.id/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

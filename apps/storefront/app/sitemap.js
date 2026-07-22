@@ -1,8 +1,7 @@
+import { SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import { LIVE_KOTA_SLUGS, JAKARTA_SUBAREA_SLUGS } from "@/lib/data/kota";
 import { MOMEN_LIST } from "@/lib/data/momen";
 import { blogPosts } from "@/lib/data/blog";
-
-const BASE_URL = "https://kalamekar.id";
 
 export default function sitemap() {
   const staticPages = [

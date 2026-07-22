@@ -135,6 +135,10 @@ a {
 }
 .rk-nav-mobile-section-panel { display: flex; flex-direction: column; gap: 2px; padding: 2px 2px 8px 12px; }
 
+@media (max-width: 860px) {
+  .rk-auth-panel { display: none !important; }
+}
+
 @media (max-width: 760px) {
   .rk-steps-grid { grid-template-columns: 1fr; }
   .rk-arch-grid { grid-template-columns: 1fr; }
@@ -188,6 +192,28 @@ a {
 
 .rk-field { transition: border-color .15s ease, box-shadow .15s ease; }
 .rk-field:focus { outline: none; border-color: var(--rk-maroon); box-shadow: 0 0 0 3px rgba(185, 51, 101, .12); }
+.rk-field-error { border-color: #d98c8c !important; }
+
+.rk-input-wrap { position: relative; }
+.rk-input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--rk-ink-soft); pointer-events: none; }
+.rk-input-wrap .rk-field { padding-left: 40px; }
+.rk-input-toggle {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--rk-ink-soft);
+  padding: 6px; display: flex; border-radius: 8px;
+}
+.rk-input-toggle:hover { color: var(--rk-maroon); }
+.rk-input-toggle:focus-visible { outline: 2px solid var(--rk-gold); outline-offset: 1px; }
+
+@keyframes rk-spin { to { transform: rotate(360deg); } }
+.rk-spin { animation: rk-spin .8s linear infinite; }
+
+@keyframes rk-skeleton-shine { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.rk-skeleton { background: linear-gradient(90deg, var(--rk-line) 25%, #f3f6f2 37%, var(--rk-line) 63%); background-size: 400% 100%; animation: rk-skeleton-shine 1.4s ease infinite; border-radius: 8px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rk-skeleton { animation: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .rk-dash-card, .rk-status-flash { animation: none; }

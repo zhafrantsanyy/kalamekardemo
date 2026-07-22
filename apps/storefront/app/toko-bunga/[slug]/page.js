@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin, ChevronRight } from "lucide-react";
-import { BUILDER_URL } from "@kalamekar/shared/tokens";
+import { BUILDER_URL, SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import FloristSection from "@/components/FloristSection";
 import { KOTA_DATA, KOTA_SLUGS, OCCASION_LINKS } from "@/lib/data/kota";
-
-const BASE_URL = "https://kalamekar.id";
 
 export function generateStaticParams() {
   return KOTA_SLUGS.map((slug) => ({ slug }));

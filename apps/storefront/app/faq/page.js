@@ -1,4 +1,5 @@
 import { HelpCircle } from "lucide-react";
+import { SITE_URL } from "@kalamekar/shared/tokens";
 
 export const metadata = {
   title: { absolute: "FAQ — Pertanyaan Umum Seputar Kalamekar" },
@@ -9,7 +10,7 @@ export const metadata = {
     title: "FAQ — Pertanyaan Umum Seputar Kalamekar",
     description:
       "Jawaban atas pertanyaan umum seputar pemesanan, pengiriman, pembayaran, dan menjadi florist partner di Kalamekar.",
-    url: "https://kalamekar.id/faq",
+    url: `${SITE_URL}/faq`,
     type: "website",
   },
 };
