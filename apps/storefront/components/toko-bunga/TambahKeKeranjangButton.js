@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { ShoppingBag, Check, Loader2 } from "lucide-react";
+import { CART_CHANGED_EVENT } from "@/components/Navbar";
 
 export default function TambahKeKeranjangButton({ productId }) {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function TambahKeKeranjangButton({ productId }) {
       if (!res.ok) throw new Error(json.error || "Gagal menambahkan ke keranjang.");
 
       setDone(true);
+      window.dispatchEvent(new Event(CART_CHANGED_EVENT));
       setTimeout(() => setDone(false), 2000);
     } catch (e) {
       setErr(e.message);

@@ -3,11 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Leaf, Wand2, Menu, X, ChevronDown, LogIn } from "lucide-react";
+import { Leaf, Wand2, Menu, X, ChevronDown, LogIn, LayoutDashboard, ShoppingBag } from "lucide-react";
 import { BUILDER_URL } from "@kalamekar/shared/tokens";
 import { KATEGORI_LIST } from "@/lib/data/kategori";
 import { MOMEN_DISPLAY_GROUPS, MOMEN_DATA } from "@/lib/data/momen";
 import { LIVE_KOTA_SLUGS, JAKARTA_SUBAREA_SLUGS, KOTA_DATA } from "@/lib/data/kota";
+import { createClient } from "@/lib/supabase/browser";
+import { getCartWithItems } from "@/lib/cart";
+
+// Nama event custom yang di-dispatch komponen lain (CartItemRow,
+// TambahKeKeranjangButton) setelah berhasil ubah isi keranjang, supaya
+// badge di sini ikut refresh tanpa perlu context/provider global.
+export const CART_CHANGED_EVENT = "kalamekar:cart-changed";
 
 function momenGroupColumns(labels) {
   return MOMEN_DISPLAY_GROUPS.filter((g) => labels.includes(g.label)).map((g) => ({
@@ -44,6 +51,64 @@ export default function Navbar() {
   const [mobileSection, setMobileSection] = useState(null);
   const [lastPathname, setLastPathname] = useState(pathname);
   const navRef = useRef(null);
+
+  // Status login dicek di client (bukan di root layout server-side) supaya
+  // halaman marketing tetap bisa di-generate statis -- getUser() di server
+  // butuh cookies(), yang akan memaksa semua halaman jadi dynamic kalau
+  // dipanggil dari layout. Konsekuensinya: sekilas render pertama selalu
+  // anggap belum login sebelum effect ini selesai.
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dashboardHref, setDashboardHref] = useState("/akun");
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const supabase = createClient();
+    let active = true;
+
+    async function refreshAuthState() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!active) return;
+      setIsLoggedIn(!!user);
+
+      if (!user) {
+        setDashboardHref("/akun");
+        setCartCount(0);
+        return;
+      }
+
+      const { data: floris } = await supabase.from("florists").select("id").eq("user_id", user.id).maybeSingle();
+      if (active) setDashboardHref(floris ? "/mitra" : "/akun");
+
+      await refreshCartCount(user.id);
+    }
+
+    async function refreshCartCount(userId) {
+      const { items } = await getCartWithItems(supabase, userId);
+      if (active) setCartCount(items.reduce((sum, item) => sum + item.quantity, 0));
+    }
+
+    refreshAuthState();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => refreshAuthState());
+
+    function onCartChanged() {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) refreshCartCount(user.id);
+      });
+    }
+    window.addEventListener(CART_CHANGED_EVENT, onCartChanged);
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+      window.removeEventListener(CART_CHANGED_EVENT, onCartChanged);
+    };
+  }, []);
 
   const isActive = (href) => pathname === href || pathname?.startsWith(href + "/");
   const activeStyle = (href) => (isActive(href) ? { color: "var(--rk-maroon)" } : undefined);
@@ -145,9 +210,35 @@ export default function Navbar() {
             )}
           </div>
 
-          <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href="/masuk">
-            <LogIn size={16} /> Masuk
+          <Link
+            className="rk-navlink rk-navlink-onlight rk-hide-sm"
+            style={{ position: "relative", padding: "9px 8px", ...activeStyle("/keranjang") }}
+            href="/keranjang"
+            aria-label="Keranjang"
+          >
+            <ShoppingBag size={19} />
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute", top: 2, right: 0, minWidth: 16, height: 16, padding: "0 3px",
+                  borderRadius: 999, background: "var(--rk-maroon)", color: "#fff", fontSize: 10, fontWeight: 700,
+                  display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1,
+                }}
+              >
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
           </Link>
+
+          {isLoggedIn ? (
+            <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href={dashboardHref}>
+              <LayoutDashboard size={16} /> Dashboard
+            </Link>
+          ) : (
+            <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href="/masuk">
+              <LogIn size={16} /> Masuk
+            </Link>
+          )}
 
           <a className="rk-btn rk-btn-primary rk-hide-sm" style={{ padding: "9px 18px", fontSize: 14, textDecoration: "none" }} href={BUILDER_URL}>
             <Wand2 size={16} /> Desain Buket
@@ -223,15 +314,33 @@ export default function Navbar() {
               )
             )}
             <div className="rk-nav-mobile-divider" />
-            <div style={{ display: "flex", gap: 10 }}>
-              <Link
-                className="rk-btn rk-btn-ghost"
-                style={{ padding: "10px 16px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
-                href="/masuk"
-                onClick={() => setMobileOpen(false)}
-              >
-                <LogIn size={16} /> Masuk
-              </Link>
+            <Link
+              className="rk-navlink rk-navlink-onlight"
+              href="/keranjang"
+              onClick={() => setMobileOpen(false)}
+            >
+              <ShoppingBag size={16} /> Keranjang{cartCount > 0 ? ` (${cartCount})` : ""}
+            </Link>
+            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+              {isLoggedIn ? (
+                <Link
+                  className="rk-btn rk-btn-ghost"
+                  style={{ padding: "10px 16px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
+                  href={dashboardHref}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <LayoutDashboard size={16} /> Dashboard
+                </Link>
+              ) : (
+                <Link
+                  className="rk-btn rk-btn-ghost"
+                  style={{ padding: "10px 16px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
+                  href="/masuk"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <LogIn size={16} /> Masuk
+                </Link>
+              )}
               <a
                 className="rk-btn rk-btn-primary"
                 style={{ padding: "10px 18px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}

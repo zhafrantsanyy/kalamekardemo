@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2, Loader2, Flower2 } from "lucide-react";
 import { rupiah } from "@/lib/catalog";
 import { CUSTOM_LABEL } from "@/lib/cart";
+import { CART_CHANGED_EVENT } from "@/components/Navbar";
 
 const qtyBtnStyle = {
   width: 30,
@@ -40,6 +41,7 @@ export default function CartItemRow({ item }) {
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Gagal memperbarui keranjang.");
+      window.dispatchEvent(new Event(CART_CHANGED_EVENT));
       router.refresh();
     } catch (e) {
       setErr(e.message);
