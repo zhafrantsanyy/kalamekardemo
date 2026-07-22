@@ -29,12 +29,15 @@ export async function middleware(request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
   const redirectToMasuk = () => {
     const url = request.nextUrl.clone();
     url.pathname = "/masuk";
-    url.searchParams.set("redirect", pathname);
+    url.search = "";
+    // Sertakan query string asli (mis. ?composition_id=... dari builder,
+    // lihat /keranjang/tambah) supaya tidak hilang setelah login.
+    url.searchParams.set("redirect", pathname + search);
     return NextResponse.redirect(url);
   };
 
@@ -68,5 +71,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/akun/:path*", "/mitra/:path*", "/admin/:path*"],
+  matcher: ["/akun/:path*", "/mitra/:path*", "/admin/:path*", "/keranjang/:path*", "/checkout/:path*"],
 };
