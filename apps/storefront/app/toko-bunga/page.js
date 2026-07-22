@@ -102,6 +102,9 @@ export default function TokoBungaPage() {
             bikin akun atau checkout yang ribet. Butuh kirim bunga hari ini juga? Sebagian besar florist partner
             kami melayani pengiriman same-day selama pesanan masuk sebelum jam 3 sore.
           </p>
+          <Link href="/toko-bunga/maps" className="rk-btn rk-btn-primary" style={{ padding: "12px 22px", fontSize: 14, marginTop: 20, textDecoration: "none", display: "inline-flex" }}>
+            <MapPin size={15} /> Lihat Florist Terdekat di Peta
+          </Link>
         </div>
       </section>
 
