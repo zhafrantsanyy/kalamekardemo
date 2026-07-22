@@ -5,7 +5,9 @@
   "scripts": {
     "dev:builder": "pnpm --filter builder dev",
     "dev:storefront": "pnpm --filter storefront dev",
+    "dev:dashboard": "pnpm --filter dashboard dev",
     "build:builder": "pnpm --filter builder build",
-    "build:storefront": "pnpm --filter storefront build"
+    "build:storefront": "pnpm --filter storefront build",
+    "build:dashboard": "pnpm --filter dashboard build"
   }
 }

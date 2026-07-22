@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Flower2, ChevronRight } from "lucide-react";
+import { SITE_URL } from "@kalamekar/shared/tokens";
 import { KATEGORI_LIST } from "@/lib/data/kategori";
 
 export const metadata = {
@@ -11,7 +12,7 @@ export const metadata = {
     title: "Kategori Produk Bunga — Buket, Papan Bunga, Standing Flower | Kalamekar",
     description:
       "Jelajahi berbagai jenis rangkaian bunga: buket, papan bunga, standing flower, dan lainnya. Temukan yang cocok untuk momenmu.",
-    url: "https://kalamekar.id/kategori",
+    url: `${SITE_URL}/kategori`,
     type: "website",
   },
 };
@@ -20,7 +21,7 @@ const collectionPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "Kategori Produk Bunga",
-  url: "https://kalamekar.id/kategori",
+  url: `${SITE_URL}/kategori`,
   description: "Jenis-jenis rangkaian bunga yang tersedia di Kalamekar.",
 };
 
@@ -28,8 +29,8 @@ const breadcrumbJsonLd = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Beranda", item: "https://kalamekar.id/" },
-    { "@type": "ListItem", position: 2, name: "Kategori", item: "https://kalamekar.id/kategori" },
+    { "@type": "ListItem", position: 1, name: "Beranda", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Kategori", item: `${SITE_URL}/kategori` },
   ],
 };
 

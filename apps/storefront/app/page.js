@@ -6,12 +6,10 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { FLOWERS, FMAP, rupiah } from "@/lib/catalog";
-import { BUILDER_URL } from "@kalamekar/shared/tokens";
+import { BUILDER_URL, SITE_URL, WA_NUMBER } from "@kalamekar/shared/tokens";
 import Thumb from "@/components/Thumb";
 import HeroSearch from "@/components/HeroSearch";
 import ScrollReveal from "@/components/ScrollReveal";
-
-const ADMIN_WA = "6287720742631";
 
 export const metadata = {
   title: "Kalamekar — Toko Bunga Online & Direktori Florist Terpercaya",
@@ -22,7 +20,7 @@ export const metadata = {
     title: "Kalamekar — Toko Bunga Online & Direktori Florist Terpercaya",
     description:
       "Temukan florist terverifikasi di kotamu atau desain buket sendiri. Pesan mudah lewat WhatsApp, kirim bunga hari ini juga.",
-    url: "https://kalamekar.id",
+    url: SITE_URL,
     type: "website",
   },
 };
@@ -91,7 +89,7 @@ const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Kalamekar",
-  url: "https://kalamekar.id",
+  url: SITE_URL,
   description:
     "Marketplace dan direktori florist lokal Indonesia — hand bouquet, papan bunga, hingga dekorasi acara, dengan kanvas rangkai custom drag-and-drop.",
   inLanguage: "id-ID",
@@ -101,7 +99,7 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Kalamekar",
-  url: "https://kalamekar.id",
+  url: SITE_URL,
   description:
     "Marketplace yang menghubungkan pembeli dengan florist lokal terverifikasi di seluruh Indonesia.",
   sameAs: [
@@ -110,7 +108,7 @@ const organizationJsonLd = {
   ],
   contactPoint: {
     "@type": "ContactPoint",
-    telephone: "+" + ADMIN_WA,
+    telephone: "+" + WA_NUMBER,
     contactType: "customer service",
     areaServed: "ID",
     availableLanguage: "Indonesian",
@@ -465,7 +463,7 @@ export default async function Home() {
               <a
                 className="rk-btn"
                 style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "13px 24px", fontSize: 14.5, textDecoration: "none", display: "inline-flex" }}
-                href={"https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent("Halo Kalamekar, saya ingin mendaftarkan toko bunga saya sebagai floris partner.")}
+                href={"https://wa.me/" + WA_NUMBER + "?text=" + encodeURIComponent("Halo Kalamekar, saya ingin mendaftarkan toko bunga saya sebagai floris partner.")}
                 target="_blank" rel="noreferrer"
               >
                 <MessageCircle size={17} /> Daftar via WhatsApp

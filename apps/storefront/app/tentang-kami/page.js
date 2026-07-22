@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Eye, Target, Check, ShieldCheck, Heart, List, TrendingUp } from "lucide-react";
+import { SITE_URL } from "@kalamekar/shared/tokens";
 import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata = {
@@ -11,7 +12,7 @@ export const metadata = {
     title: "Tentang Kalamekar",
     description:
       "Kalamekar menghubungkan florist lokal Indonesia dengan pembeli — kenali cerita, visi-misi, dan pendiri di baliknya.",
-    url: "https://kalamekar.id/tentang-kami",
+    url: `${SITE_URL}/tentang-kami`,
     type: "website",
   },
 };
@@ -62,13 +63,13 @@ const aboutPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
   name: "Tentang Kalamekar",
-  url: "https://kalamekar.id/tentang-kami",
+  url: `${SITE_URL}/tentang-kami`,
   description:
     "Kalamekar lahir dari keyakinan sederhana: di balik setiap momen penting orang Indonesia, ada florist lokal yang layak ditemukan.",
   mainEntity: {
     "@type": "Organization",
     name: "Kalamekar",
-    url: "https://kalamekar.id",
+    url: SITE_URL,
     foundingDate: "2026",
     founder: FOUNDERS.map((f) => ({ "@type": "Person", name: f.nama })),
   },

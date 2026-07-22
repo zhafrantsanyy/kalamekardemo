@@ -1,4 +1,5 @@
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+import { SITE_URL } from "@kalamekar/shared/tokens";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import "./globals.css";
@@ -19,7 +20,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://kalamekar.id"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Kalamekar — Marketplace Florist Lokal Indonesia",
     template: "%s | Kalamekar",

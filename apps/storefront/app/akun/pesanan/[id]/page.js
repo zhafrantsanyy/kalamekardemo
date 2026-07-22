@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, MapPin, Phone, Calendar, Clock, StickyNote } from "lucide-react";
+import { ChevronLeft, MapPin, Phone, Calendar, Clock, StickyNote, MessageCircle } from "lucide-react";
+import { WA_NUMBER } from "@kalamekar/shared/tokens";
 import { createClient } from "@/lib/supabase/server";
+import OrderCanvasPreview from "@/components/OrderCanvasPreview";
 import PapanBungaOrderSummary, { OrderPriceDisplay } from "@/components/PapanBungaOrderSummary";
 import OrderTrackingLive from "@/components/akun/OrderTrackingLive";
 
@@ -55,7 +57,7 @@ export default async function AkunOrderDetailPage({ params }) {
         </div>
       </div>
 
-      {order.product_type === "papan_bunga" && (
+      {order.product_type === "papan_bunga" ? (
         <div className="rk-card" style={{ padding: 22 }}>
           <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Rancangan papan bunga</div>
           <PapanBungaOrderSummary order={order} />
@@ -65,7 +67,24 @@ export default async function AkunOrderDetailPage({ params }) {
             </p>
           )}
         </div>
+      ) : (
+        <div className="rk-card" style={{ padding: 22 }}>
+          <div style={{ fontWeight: 800, color: "var(--rk-maroon)", marginBottom: 12 }}>Rancangan</div>
+          <div style={{ maxWidth: 280, margin: "0 auto" }}>
+            <OrderCanvasPreview items={order.items} mode={order.mode} />
+          </div>
+        </div>
       )}
+
+      <a
+        href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Halo Kalamekar, saya ingin bertanya soal pesanan ${order.kode}.`)}`}
+        target="_blank"
+        rel="noreferrer"
+        className="rk-btn rk-btn-teal"
+        style={{ padding: "12px 20px", fontSize: 14, textDecoration: "none", justifyContent: "center" }}
+      >
+        <MessageCircle size={16} /> Chat via WhatsApp
+      </a>
 
       <OrderTrackingLive initialOrder={order} />
     </div>

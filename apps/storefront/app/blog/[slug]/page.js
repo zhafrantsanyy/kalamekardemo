@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, User, ChevronRight } from "lucide-react";
+import { SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import { blogPosts } from "@/lib/data/blog";
-
-const BASE_URL = "https://kalamekar.id";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({ slug: post.slug }));

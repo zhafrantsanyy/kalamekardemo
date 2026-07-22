@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Search, MessageCircle, CheckCircle2, PackageCheck, Truck } from "lucide-react";
-import { BUILDER_URL } from "@kalamekar/shared/tokens";
+import { BUILDER_URL, SITE_URL } from "@kalamekar/shared/tokens";
 
 export const metadata = {
   title: { absolute: "Cara Pesan Bunga di Kalamekar — Panduan Lengkap" },
@@ -11,7 +11,7 @@ export const metadata = {
     title: "Cara Pesan Bunga di Kalamekar — Panduan Lengkap",
     description:
       "Panduan langkah demi langkah memesan bunga di Kalamekar, dari memilih florist sampai bunga terkirim. Mudah lewat WhatsApp.",
-    url: "https://kalamekar.id/cara-pesan",
+    url: `${SITE_URL}/cara-pesan`,
     type: "website",
   },
 };

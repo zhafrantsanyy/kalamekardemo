@@ -38,11 +38,17 @@ export async function middleware(request) {
     return NextResponse.redirect(url);
   };
 
-  if (!user) {
-    return redirectToMasuk();
+  // Panel admin dinonaktifkan sementara di storefront — akan dipindah ke
+  // workspace dashboard/ (lihat rencana migrasi). Kode /admin dibiarkan
+  // utuh untuk referensi, hanya aksesnya yang ditutup di sini.
+  if (pathname.startsWith("/admin")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
-  if (pathname.startsWith("/admin") && user.app_metadata?.role !== "admin") {
+  if (!user) {
     return redirectToMasuk();
   }
 

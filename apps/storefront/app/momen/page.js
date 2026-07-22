@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Sparkles, ChevronRight } from "lucide-react";
+import { SITE_URL } from "@kalamekar/shared/tokens";
 
 export const metadata = {
   title: { absolute: "Moments — Bunga untuk Setiap Momen | Kalamekar" },
@@ -10,7 +11,7 @@ export const metadata = {
     title: "Moments — Bunga untuk Setiap Momen | Kalamekar",
     description:
       "Dari wisuda sampai grand opening, temukan rangkaian bunga yang pas untuk momenmu. Jelajahi inspirasi berdasarkan acara.",
-    url: "https://kalamekar.id/momen",
+    url: `${SITE_URL}/momen`,
     type: "website",
   },
 };
@@ -83,7 +84,7 @@ const collectionPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   name: "Moments — Bunga untuk Setiap Momen",
-  url: "https://kalamekar.id/momen",
+  url: `${SITE_URL}/momen`,
   description: "Direktori rangkaian bunga berdasarkan momen dan acara.",
 };
 
@@ -91,8 +92,8 @@ const breadcrumbJsonLd = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Beranda", item: "https://kalamekar.id/" },
-    { "@type": "ListItem", position: 2, name: "Moments", item: "https://kalamekar.id/momen" },
+    { "@type": "ListItem", position: 1, name: "Beranda", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Moments", item: `${SITE_URL}/momen` },
   ],
 };
 

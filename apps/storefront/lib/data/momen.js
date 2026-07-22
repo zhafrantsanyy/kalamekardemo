@@ -2,6 +2,8 @@
 // Tiap page.js di app/[slug]/page.js cukup import MOMEN_DATA[slug] + momenMetadata(slug)
 // dan render <MomenPageTemplate data={...} />. Lihat components/momen/MomenPageTemplate.js.
 
+import { SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
+
 export const MOMEN_SLUGS = [
   // personal
   "bunga-wisuda",
@@ -580,8 +582,6 @@ export const MOMEN_DISPLAY_GROUPS = [
     slugs: ["bunga-kantor", "bunga-perusahaan"],
   },
 ];
-
-const BASE_URL = "https://kalamekar.id";
 
 export function momenMetadata(slug) {
   const data = MOMEN_DATA[slug];

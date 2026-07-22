@@ -1,8 +1,7 @@
 import { BookOpen } from "lucide-react";
+import { SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import BlogGrid from "@/components/blog/BlogGrid";
 import { blogPosts } from "@/lib/data/blog";
-
-const BASE_URL = "https://kalamekar.id";
 
 export function generateMetadata() {
   const hasPosts = blogPosts.length > 0;

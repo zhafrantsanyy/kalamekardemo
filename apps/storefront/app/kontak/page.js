@@ -1,5 +1,5 @@
 import { MessageCircle, Mail, Clock, MapPin, Store, Newspaper } from "lucide-react";
-import { WA_NUMBER } from "@kalamekar/shared/tokens";
+import { WA_NUMBER, SITE_URL } from "@kalamekar/shared/tokens";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata = {
@@ -11,7 +11,7 @@ export const metadata = {
     title: "Kontak Kami — Kalamekar",
     description:
       "Hubungi tim Kalamekar untuk pertanyaan, kerja sama florist, atau bantuan pemesanan. Respon cepat lewat WhatsApp.",
-    url: "https://kalamekar.id/kontak",
+    url: `${SITE_URL}/kontak`,
     type: "website",
   },
 };
@@ -28,7 +28,7 @@ const contactPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "ContactPage",
   name: "Kontak Kalamekar",
-  url: "https://kalamekar.id/kontak",
+  url: `${SITE_URL}/kontak`,
   about: {
     "@type": "Organization",
     name: "Kalamekar",

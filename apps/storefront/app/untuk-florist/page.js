@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Store, Users, Wallet, Headset, MapPinned, ClipboardCheck, Rocket, MessageCircle } from "lucide-react";
-import { WA_NUMBER } from "@kalamekar/shared/tokens";
+import { Store, Users, Wallet, Headset, MapPinned, ClipboardCheck, Rocket, MessageCircle, LogIn } from "lucide-react";
+import { WA_NUMBER, SITE_URL, APP_URL } from "@kalamekar/shared/tokens";
 
 export const metadata = {
   title: { absolute: "Jadi Mitra Florist Kalamekar — Jangkau Pelanggan Baru" },
@@ -11,7 +11,7 @@ export const metadata = {
     title: "Jadi Mitra Florist Kalamekar — Jangkau Pelanggan Baru",
     description:
       "Daftarkan toko bunga Anda di Kalamekar dan jangkau lebih banyak pelanggan. Gratis, mudah, dan didampingi tim kami.",
-    url: "https://kalamekar.id/untuk-florist",
+    url: `${SITE_URL}/untuk-florist`,
     type: "website",
   },
 };
@@ -47,7 +47,7 @@ const webPageJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   name: "Jadi Mitra Florist Kalamekar",
-  url: "https://kalamekar.id/untuk-florist",
+  url: `${SITE_URL}/untuk-florist`,
   description: "Halaman pendaftaran florist partner Kalamekar.",
 };
 
@@ -74,6 +74,12 @@ export default function UntukFloristPage() {
               <MessageCircle size={17} /> Tanya via WhatsApp
             </a>
           </div>
+          <p style={{ fontSize: 13.5, color: "var(--rk-ink-soft)", marginTop: 18 }}>
+            Sudah jadi mitra?{" "}
+            <a href={`${APP_URL}/mitra/masuk`} style={{ color: "var(--rk-maroon)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <LogIn size={14} /> Masuk Dashboard Mitra
+            </a>
+          </p>
         </div>
       </section>
 
