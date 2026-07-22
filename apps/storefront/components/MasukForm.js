@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogIn, User, Flower2, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { LogIn, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { APP_URL } from "@kalamekar/shared/tokens";
 import { createClient } from "@/lib/supabase/browser";
 import { humanizeAuthError } from "@/lib/authErrors";
 
@@ -24,7 +25,6 @@ export default function MasukForm() {
   // hydration) — nilai asli diisi lewat effect setelah mount.
   const [redirectParam, setRedirectParam] = useState(null);
 
-  const [role, setRole] = useState("pembeli");
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [err, setErr] = useState("");
@@ -33,13 +33,12 @@ export default function MasukForm() {
 
   useEffect(() => {
     const param = getRedirectParam();
-    if (param) {
-      setRedirectParam(param);
-      if (param.startsWith("/mitra")) setRole("florist");
-    }
+    if (param) setRedirectParam(param);
   }, []);
 
-  const redirectTo = redirectParam || (role === "florist" ? "/mitra" : "/akun");
+  // Halaman ini khusus pembeli — floris masuk lewat dashboard mitra
+  // (apps/dashboard, tautan "Masuk Dashboard Mitra" di /untuk-florist).
+  const redirectTo = redirectParam || "/akun";
 
   function update(field) {
     return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -96,35 +95,14 @@ export default function MasukForm() {
       <h1 className="rk-serif" style={{ fontSize: 26, color: "var(--rk-maroon-deep)", margin: "0 0 6px" }}>
         Masuk ke akunmu
       </h1>
-      <p style={{ fontSize: 13.5, color: "var(--rk-ink-soft)", margin: "0 0 24px" }}>
+      <p style={{ fontSize: 13.5, color: "var(--rk-ink-soft)", margin: "0 0 8px" }}>
         Belum punya akun? <a href="/daftar" style={{ color: "var(--rk-maroon)", fontWeight: 700 }}>Daftar di sini</a>
+      </p>
+      <p style={{ fontSize: 13.5, color: "var(--rk-ink-soft)", margin: "0 0 24px" }}>
+        Kamu floris mitra? <a href={`${APP_URL}/mitra/masuk`} style={{ color: "var(--rk-maroon)", fontWeight: 700 }}>Masuk lewat Dashboard Mitra</a>
       </p>
 
       <form onSubmit={handleSubmit} style={{ display: "grid", gap: 18 }}>
-        <div>
-          <label style={labelStyle}>Masuk sebagai</label>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              type="button"
-              onClick={() => setRole("pembeli")}
-              aria-pressed={role === "pembeli"}
-              className={"rk-chip" + (role === "pembeli" ? " rk-chip-on" : "")}
-              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 12px", fontSize: 13.5, fontWeight: 700, color: role === "pembeli" ? "var(--rk-maroon)" : "var(--rk-ink-soft)" }}
-            >
-              <User size={15} /> Pembeli
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("florist")}
-              aria-pressed={role === "florist"}
-              className={"rk-chip" + (role === "florist" ? " rk-chip-on" : "")}
-              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 12px", fontSize: 13.5, fontWeight: 700, color: role === "florist" ? "var(--rk-maroon)" : "var(--rk-ink-soft)" }}
-            >
-              <Flower2 size={15} /> Florist
-            </button>
-          </div>
-        </div>
-
         <div>
           <label style={labelStyle} htmlFor="masuk-email">Email</label>
           <div className="rk-input-wrap">
