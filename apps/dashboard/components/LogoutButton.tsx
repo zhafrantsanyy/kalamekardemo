@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 
-export default function LogoutButton() {
+export default function LogoutButton({ redirectTo = "/mitra/masuk" }: { redirectTo?: string }) {
   const router = useRouter();
 
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/mitra/masuk");
+    router.push(redirectTo);
     router.refresh();
   }
 

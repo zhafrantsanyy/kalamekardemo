@@ -32,19 +32,19 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const redirectToMasuk = () => {
+  const redirectTo = (loginPath: string) => {
     const url = request.nextUrl.clone();
-    url.pathname = "/mitra/masuk";
+    url.pathname = loginPath;
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   };
 
-  if (pathname === "/mitra/masuk") {
+  if (pathname === "/mitra/masuk" || pathname === "/admin/login") {
     return supabaseResponse;
   }
 
   if (!user) {
-    return redirectToMasuk();
+    return redirectTo(pathname.startsWith("/admin") ? "/admin/login" : "/mitra/masuk");
   }
 
   // Model peran struktural: florist = ada baris di `florists` untuk user
@@ -58,7 +58,15 @@ export async function middleware(request: NextRequest) {
       .maybeSingle();
 
     if (!floris) {
-      return redirectToMasuk();
+      return redirectTo("/mitra/masuk");
+    }
+  }
+
+  // Model peran admin: klaim di app_metadata (JWT), bukan query tabel —
+  // sama asumsi dengan requireRole("admin") di lib/auth/requireRole.ts.
+  if (pathname.startsWith("/admin")) {
+    if (user.app_metadata?.role !== "admin") {
+      return redirectTo("/admin/login");
     }
   }
 
@@ -66,5 +74,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/mitra/:path*"],
+  matcher: ["/mitra/:path*", "/admin/:path*"],
 };
