@@ -37,16 +37,20 @@ export const STATUS_COLORS = {
 // Ketiga URL lintas-workspace ini env-first (NEXT_PUBLIC_* dibaca lewat
 // process.env langsung, bukan lewat next.config — supaya berfungsi sama
 // baik di Next.js maupun konsumen lain), dengan fallback ke domain
-// produksi kalamekar.id atau localhost saat env belum diisi. JANGAN
-// hardcode salah satu dari tiga URL ini di tempat lain — selalu impor
-// dari sini.
+// produksi saat env belum diisi. JANGAN hardcode salah satu dari tiga
+// URL ini di tempat lain — selalu impor dari sini.
+//
+// Domain utama kalamekar.id/builder.kalamekar.id belum di-setup — fallback
+// produksi sementara mengarah ke domain Vercel demo yang sudah live. SET
+// NEXT_PUBLIC_BUILDER_URL/NEXT_PUBLIC_SITE_URL di Vercel Project Settings
+// begitu domain utama siap, supaya tidak perlu ubah kode lagi.
 export const BUILDER_URL =
   process.env.NEXT_PUBLIC_BUILDER_URL ||
-  (process.env.NODE_ENV === "production" ? "https://builder.kalamekar.id" : "http://localhost:5173");
+  (process.env.NODE_ENV === "production" ? "https://kalamekardemo.vercel.app" : "http://localhost:5173");
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.NODE_ENV === "production" ? "https://kalamekar.id" : "http://localhost:3000");
+  (process.env.NODE_ENV === "production" ? "https://kalamekardemo-store.vercel.app" : "http://localhost:3000");
 
 // URL dashboard mitra (workspace apps/dashboard) — dipakai untuk link
 // "Masuk Dashboard Mitra" dari storefront.
