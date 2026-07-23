@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Phone, MapPin, StickyNote, ArrowRight } from "lucide-react";
+import { User, Phone, MapPin, StickyNote, ArrowRight, CalendarDays, Clock } from "lucide-react";
 
 const labelStyle = { display: "block", fontSize: 13, fontWeight: 700, color: "var(--rk-ink)", marginBottom: 6 };
 const fieldBase = {
@@ -16,7 +16,18 @@ const fieldBase = {
   padding: "12px 14px 12px 40px",
 };
 
-const initialForm = { recipientName: "", recipientPhone: "", address: "", notes: "" };
+const WAKTU_OPTIONS = ["08:00 – 10:00", "10:00 – 12:00", "13:00 – 15:00", "15:00 – 17:00", "17:00 – 19:00"];
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+const initialForm = {
+  recipientName: "",
+  recipientPhone: "",
+  address: "",
+  notes: "",
+  deliveryDate: "",
+  deliveryTime: WAKTU_OPTIONS[1],
+};
 
 // Data form disimpan sementara di sessionStorage (bukan DB) — order baru
 // benar-benar dibuat di /checkout/pembayaran setelah "pembayaran" dummy
@@ -40,15 +51,27 @@ export default function CheckoutForm() {
     const recipientName = form.recipientName.trim();
     const recipientPhone = form.recipientPhone.trim();
     const address = form.address.trim();
+    const deliveryDate = form.deliveryDate;
 
     if (!recipientName || !recipientPhone || !address) {
       setErr("Nama penerima, nomor telepon, dan alamat wajib diisi.");
       return;
     }
+    if (!deliveryDate) {
+      setErr("Tanggal kirim wajib diisi.");
+      return;
+    }
 
     sessionStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ recipientName, recipientPhone, address, notes: form.notes.trim() }),
+      JSON.stringify({
+        recipientName,
+        recipientPhone,
+        address,
+        notes: form.notes.trim(),
+        deliveryDate,
+        deliveryTime: form.deliveryTime,
+      }),
     );
     router.push("/checkout/pembayaran");
   }
@@ -104,6 +127,42 @@ export default function CheckoutForm() {
             onChange={update("address")}
             placeholder="Jalan, nomor, kelurahan, kecamatan, kota, patokan…"
           />
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div>
+          <label style={labelStyle} htmlFor="co-tanggal">Tanggal kirim</label>
+          <div className="rk-input-wrap">
+            <CalendarDays size={16} className="rk-input-icon" />
+            <input
+              id="co-tanggal"
+              className="rk-field"
+              style={fieldBase}
+              type="date"
+              required
+              min={today()}
+              value={form.deliveryDate}
+              onChange={update("deliveryDate")}
+            />
+          </div>
+        </div>
+        <div>
+          <label style={labelStyle} htmlFor="co-jam">Jam kirim</label>
+          <div className="rk-input-wrap">
+            <Clock size={16} className="rk-input-icon" />
+            <select
+              id="co-jam"
+              className="rk-field"
+              style={fieldBase}
+              value={form.deliveryTime}
+              onChange={update("deliveryTime")}
+            >
+              {WAKTU_OPTIONS.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 

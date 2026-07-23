@@ -19,12 +19,17 @@ export async function POST(request) {
   const recipientPhone = typeof body?.recipientPhone === "string" ? body.recipientPhone.trim() : "";
   const address = typeof body?.address === "string" ? body.address.trim() : "";
   const notes = typeof body?.notes === "string" ? body.notes.trim() : "";
+  const deliveryDate = typeof body?.deliveryDate === "string" ? body.deliveryDate.trim() : "";
+  const deliveryTime = typeof body?.deliveryTime === "string" ? body.deliveryTime.trim() : "";
 
   if (paymentMethod !== "transfer_bank" && paymentMethod !== "qris") {
     return NextResponse.json({ error: "Metode pembayaran tidak valid." }, { status: 400 });
   }
   if (!recipientName || !recipientPhone || !address) {
     return NextResponse.json({ error: "Data penerima belum lengkap. Kembali ke halaman checkout." }, { status: 400 });
+  }
+  if (!deliveryDate) {
+    return NextResponse.json({ error: "Tanggal kirim belum diisi. Kembali ke halaman checkout." }, { status: 400 });
   }
 
   // Ambil cart dari sesi user sendiri (lewat RLS) — BUKAN dari body request,
@@ -51,7 +56,8 @@ export async function POST(request) {
       nama: recipientName,
       wa: recipientPhone,
       alamat: address,
-      tanggal: new Date().toISOString().slice(0, 10),
+      tanggal: deliveryDate,
+      waktu: deliveryTime || null,
       kartu: notes || null,
       metode_bayar: paymentMethod,
       // TODO: Ganti dengan integrasi Midtrans/Xendit sungguhan — payment_status

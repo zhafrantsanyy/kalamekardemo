@@ -1,20 +1,14 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import {
-  Flower2, Trash2, RotateCw, Plus, Minus, Copy, ArrowUp, Sparkles,
-  ShoppingBag, MapPin, Star, Truck, Camera, Check, ChevronLeft,
-  MessageCircle, Wand2, Eraser, Store, Route, CreditCard, Heart, LayoutTemplate, LayoutGrid,
+  Flower2, Trash2, RotateCw, Plus, Minus, Copy, ArrowUp,
+  ShoppingBag, Wand2, Eraser, Heart, LayoutTemplate, LayoutGrid,
 } from "lucide-react";
-import { C, serif, rupiah, clamp, uid } from "../lib/theme";
-import { FLOWERS, FMAP, WRAPS, BASES, SIZES, ONGKIR } from "../lib/catalog";
-import { supabase, ADMIN_WA } from "../lib/supabase";
+import { C, rupiah, clamp, uid } from "../lib/theme";
+import { FLOWERS, FMAP, WRAPS, BASES, SIZES } from "../lib/catalog";
+import { supabase } from "../lib/supabase";
+import { SITE_URL } from "../lib/urls";
 import Thumb from "../components/Thumb";
 import { BouquetGuide, WreathGuide } from "../components/BouquetGuide";
-
-const FLORISTS = [
-  { nama: "Kirana Bloom Studio", area: "Kemang", jarak: "2,3 km", rating: 4.8, order: 214 },
-  { nama: "Sekar Ayu Florist", area: "Tebet", jarak: "3,1 km", rating: 4.9, order: 187 },
-  { nama: "Flora Kayu Manis", area: "Cipete", jarak: "4,0 km", rating: 4.7, order: 156 },
-];
 
 /* ---------------- Stage (canvas) ---------------- */
 
@@ -125,13 +119,15 @@ function Stage({ items, mode, wrap, base, sizeCfg, selectedId, onSelect, onDragT
 
 /* ---------------- Builder canvas step ---------------- */
 
-function BuilderCanvasStep({ design, setDesign, go, onSwitchProduk }) {
+function BuilderCanvasStep({ design, setDesign, onSwitchProduk }) {
   const { items, mode, wrapId, baseId, sizeId } = design;
   const [selectedId, setSelectedId] = useState(null);
   const wrap = WRAPS.find((w) => w.id === wrapId);
   const base = BASES.find((b) => b.id === baseId);
   const sizeCfg = SIZES.find((s) => s.id === sizeId);
   const [kat, setKat] = useState("bunga");
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState("");
 
   const setItems = (fn) => setDesign((d) => ({ ...d, items: typeof fn === "function" ? fn(d.items) : fn }));
 
@@ -205,6 +201,35 @@ function BuilderCanvasStep({ design, setDesign, go, onSwitchProduk }) {
 
   const sel = items.find((it) => it.id === selectedId);
   const palette = FLOWERS.filter((f) => (kat === "bunga" ? f.kat === "bunga" : f.kat === "filler"));
+
+  const submitToCheckout = async () => {
+    if (items.length === 0) return;
+    setErr("");
+    if (!supabase) {
+      setErr("Checkout builder butuh koneksi Supabase aktif (env belum diisi).");
+      return;
+    }
+    setSending(true);
+    const { data, error } = await supabase
+      .from("builder_compositions")
+      .insert({
+        product_type: mode === "bouquet" ? "buket" : "krans",
+        mode,
+        ukuran: sizeId,
+        wrapping: mode === "bouquet" ? wrapId : null,
+        ring_dasar: mode === "wreath" ? baseId : null,
+        items: items.map(({ type, x, y, size, rot }) => ({ type, x, y, size, rot })),
+        harga: total,
+      })
+      .select("id")
+      .single();
+    if (error || !data) {
+      setSending(false);
+      setErr("Gagal menyimpan rangkaian: " + (error?.message || "Coba lagi ya."));
+      return;
+    }
+    window.location.href = `${SITE_URL}/keranjang/tambah?composition_id=${data.id}&source=builder`;
+  };
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto", padding: "26px 16px 60px" }}>
@@ -351,298 +376,12 @@ function BuilderCanvasStep({ design, setDesign, go, onSwitchProduk }) {
           <div style={{ fontSize: 11.5, color: C.inkSoft, margin: "10px 0 14px", lineHeight: 1.5 }}>
             Hasil rakitan dapat sedikit bervariasi dari preview. Floris akan mengirim foto konfirmasi sebelum bunga diantar.
           </div>
+          {err && <div style={{ color: "#a13d3d", fontSize: 12.5, fontWeight: 600, marginBottom: 10 }}>{err}</div>}
           <button className="rk-btn rk-btn-primary" style={{ width: "100%", justifyContent: "center", padding: "14px 0", fontSize: 15.5 }}
-            disabled={items.length === 0}
-            onClick={() => items.length > 0 && go("checkout")}>
-            <ShoppingBag size={17} /> Lanjut ke checkout
+            disabled={items.length === 0 || sending}
+            onClick={submitToCheckout}>
+            <ShoppingBag size={17} /> {sending ? "Menyimpan…" : "Lanjut ke checkout"}
           </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Builder checkout step ---------------- */
-
-function BuilderCheckoutStep({ design, go, setOrder }) {
-  const { items, mode, wrapId, baseId, sizeId } = design;
-  const wrap = WRAPS.find((w) => w.id === wrapId);
-  const base = BASES.find((b) => b.id === baseId);
-  const sizeCfg = SIZES.find((s) => s.id === sizeId);
-  const stemTotal = items.reduce((s, it) => s + FMAP[it.type].harga, 0);
-  const subtotal = stemTotal + (mode === "bouquet" ? wrap.harga : base.harga) + sizeCfg.fee;
-  const grand = subtotal + ONGKIR;
-
-  const [form, setForm] = useState({ nama: "", wa: "", alamat: "", tanggal: "", waktu: "10:00 – 12:00", kartu: "", bayar: "qris" });
-  const [err, setErr] = useState("");
-  const [sending, setSending] = useState(false);
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-
-  const submit = async () => {
-    if (!form.nama.trim() || !form.alamat.trim() || !form.tanggal) {
-      setErr("Nama penerima, alamat, dan tanggal kirim wajib diisi.");
-      return;
-    }
-    setErr("");
-    const kode = "KM-" + Math.floor(1000 + Math.random() * 9000);
-    if (supabase) {
-      setSending(true);
-      const { error } = await supabase.from("orders").insert({
-        kode,
-        nama: form.nama.trim(),
-        wa: form.wa.trim() || null,
-        alamat: form.alamat.trim(),
-        tanggal: form.tanggal,
-        waktu: form.waktu,
-        kartu: form.kartu.trim() || null,
-        metode_bayar: form.bayar,
-        mode,
-        ukuran: sizeId,
-        wrapping: mode === "bouquet" ? wrapId : null,
-        ring_dasar: mode === "wreath" ? baseId : null,
-        items: items.map(({ type, x, y, size, rot }) => ({ type, x, y, size, rot })),
-        subtotal,
-        ongkir: ONGKIR,
-        total: grand,
-      });
-      setSending(false);
-      if (error) {
-        setErr("Pesanan gagal disimpan: " + error.message + ". Coba lagi ya.");
-        return;
-      }
-    }
-    setOrder({ ...form, total: grand, kode });
-    go("tracking");
-  };
-
-  return (
-    <div style={{ maxWidth: 980, margin: "0 auto", padding: "26px 16px 60px" }}>
-      <button className="rk-btn rk-btn-ghost" style={{ padding: "8px 16px", fontSize: 13.5, marginBottom: 18 }} onClick={() => go("builder")}>
-        <ChevronLeft size={16} /> Kembali ke kanvas
-      </button>
-      <h2 className="rk-serif" style={{ fontSize: 28, color: C.maroon, marginBottom: 20 }}>Checkout</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 20 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-          {/* Form */}
-          <div className="rk-card" style={{ padding: 20 }}>
-            <div style={{ fontWeight: 800, color: C.maroon, marginBottom: 14 }}>Pengiriman</div>
-            <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Nama penerima</label>
-            <input className="rk-input" value={form.nama} onChange={set("nama")} placeholder="cth. Salsabila Putri" style={{ marginBottom: 12 }} />
-            <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Nomor WhatsApp penerima</label>
-            <input className="rk-input" value={form.wa} onChange={set("wa")} placeholder="08xx xxxx xxxx" style={{ marginBottom: 12 }} inputMode="tel" />
-            <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Alamat lengkap</label>
-            <textarea className="rk-input" rows={3} value={form.alamat} onChange={set("alamat")} placeholder="Jalan, nomor, kelurahan, patokan…" style={{ marginBottom: 12, resize: "vertical" }} />
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Tanggal kirim</label>
-                <input className="rk-input" type="date" value={form.tanggal} onChange={set("tanggal")} />
-              </div>
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Jam kirim</label>
-                <select className="rk-input" value={form.waktu} onChange={set("waktu")}>
-                  {["08:00 – 10:00", "10:00 – 12:00", "13:00 – 15:00", "15:00 – 17:00", "17:00 – 19:00"].map((t) => <option key={t}>{t}</option>)}
-                </select>
-              </div>
-            </div>
-            <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Pesan kartu ucapan (opsional)</label>
-            <textarea className="rk-input" rows={2} value={form.kartu} onChange={set("kartu")} placeholder="cth. Selamat wisuda! Bangga sama kamu." style={{ resize: "vertical" }} />
-          </div>
-
-          {/* Ringkasan */}
-          <div className="rk-card" style={{ padding: 20 }}>
-            <div style={{ fontWeight: 800, color: C.maroon, marginBottom: 14 }}>Ringkasan pesanan</div>
-            <div style={{ maxWidth: 210, margin: "0 auto 14px" }}>
-              <Stage items={items} mode={mode} wrap={wrap} base={base} sizeCfg={sizeCfg} readonly selectedId={null} onSelect={() => {}} onDragTo={() => {}} />
-            </div>
-            <div style={{ fontSize: 13.5 }}>
-              {[
-                [`${mode === "bouquet" ? "Buket" : "Krans"} custom · ukuran ${sizeCfg.nama} · ${items.length} tangkai`, rupiah(subtotal)],
-                ["Ongkos kirim (dalam kota)", rupiah(ONGKIR)],
-              ].map(([l, v]) => (
-                <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
-                  <span style={{ paddingRight: 10 }}>{l}</span><span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{v}</span>
-                </div>
-              ))}
-              <div style={{ display: "flex", justifyContent: "space-between", borderTop: `2px solid ${C.maroon}`, marginTop: 8, paddingTop: 8, alignItems: "baseline" }}>
-                <span style={{ fontWeight: 800 }}>Total dibayar</span>
-                <span className="rk-serif" style={{ fontWeight: 800, fontSize: 21, color: C.maroon }}>{rupiah(grand)}</span>
-              </div>
-            </div>
-            <div style={{ fontWeight: 800, color: C.maroon, margin: "16px 0 8px", fontSize: 14 }}>Metode pembayaran</div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-              {[["qris", "QRIS"], ["va", "Virtual Account"], ["kartu", "Kartu"]].map(([k, l]) => (
-                <button key={k} className={"rk-chip" + (form.bayar === k ? " rk-chip-on" : "")}
-                  style={{ flex: 1, padding: "9px 4px", fontSize: 12.5, fontWeight: 700, color: form.bayar === k ? C.maroon : C.inkSoft }}
-                  onClick={() => setForm((f) => ({ ...f, bayar: k }))}>{l}</button>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 8, background: "#eef4f1", border: `1px solid ${C.teal}`, borderRadius: 12, padding: "10px 12px", fontSize: 12.5, color: C.tealDeep, lineHeight: 1.5, marginBottom: 14 }}>
-              <CreditCard size={16} style={{ flexShrink: 0, marginTop: 2 }} />
-              <span>Pembayaranmu ditahan di escrow dan baru diteruskan ke floris setelah bunga diterima.</span>
-            </div>
-            {err && <div style={{ color: "#a13d3d", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{err}</div>}
-            <button className="rk-btn rk-btn-primary" style={{ width: "100%", justifyContent: "center", padding: "14px 0", fontSize: 15.5 }} onClick={submit} disabled={sending}>
-              <Check size={17} /> {sending ? "Menyimpan pesanan…" : "Bayar & buat pesanan"}
-            </button>
-            <div style={{ fontSize: 11, color: C.inkSoft, textAlign: "center", marginTop: 8 }}>
-              {supabase
-                ? "Fase pilot: pembayaran & status dikonfirmasi tim kami via WhatsApp."
-                : "Mode demo — pesanan tidak disimpan (env Supabase belum diisi)."}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Builder tracking step ---------------- */
-
-const TRACK_STEPS = [
-  { icon: Route, t: "Mencari floris", d: "Mencocokkan order dengan floris terdekat berdasar lokasi, stok & rating." },
-  { icon: Store, t: "Floris menerima order", d: "Stok dikonfirmasi. Rangkaianmu masuk antrean rakit." },
-  { icon: Camera, t: "Rakit + foto konfirmasi", d: "Floris mengirim foto hasil rakitan untuk kamu setujui." },
-  { icon: Truck, t: "Sedang diantar", d: "Kurir menuju alamat penerima." },
-  { icon: Check, t: "Selesai", d: "Bunga diterima. Dana escrow diteruskan ke floris." },
-];
-
-function BuilderTrackingStep({ design, order, go }) {
-  const { items, mode, wrapId, baseId, sizeId } = design;
-  const wrap = WRAPS.find((w) => w.id === wrapId);
-  const base = BASES.find((b) => b.id === baseId);
-  const sizeCfg = SIZES.find((s) => s.id === sizeId);
-  const florist = useMemo(() => FLORISTS[Math.floor(Math.random() * FLORISTS.length)], []);
-  const [step, setStep] = useState(0);
-  const [approved, setApproved] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [revisi, setRevisi] = useState(false);
-
-  useEffect(() => {
-    if (step === 0) { const t = setTimeout(() => setStep(1), 2400); return () => clearTimeout(t); }
-    if (step === 1) { const t = setTimeout(() => setStep(2), 2400); return () => clearTimeout(t); }
-    if (step === 3) { const t = setTimeout(() => setStep(4), 3000); return () => clearTimeout(t); }
-  }, [step]);
-
-  return (
-    <div style={{ maxWidth: 880, margin: "0 auto", padding: "26px 16px 60px" }}>
-      <h2 className="rk-serif" style={{ fontSize: 28, color: C.maroon, marginBottom: 4 }}>Pesanan {order.kode}</h2>
-      <p style={{ color: C.inkSoft, fontSize: 14, marginBottom: 14 }}>
-        Kirim ke {order.nama} · {order.tanggal} · {order.waktu}
-      </p>
-      {ADMIN_WA && (
-        <a
-          className="rk-btn rk-btn-teal"
-          style={{ padding: "11px 20px", fontSize: 14, textDecoration: "none", marginBottom: 22, display: "inline-flex" }}
-          href={"https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent(
-            "Halo Kalamekar! Saya baru membuat pesanan " + order.kode + " atas nama " + order.nama +
-            ", kirim " + order.tanggal + " (" + order.waktu + "), total " + rupiah(order.total) + ". Mohon konfirmasinya ya 🌸"
-          )}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <MessageCircle size={17} /> Konfirmasi pesanan via WhatsApp
-        </a>
-      )}
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-        {/* Timeline */}
-        <div className="rk-card" style={{ padding: 20 }}>
-          {TRACK_STEPS.map((s, i) => {
-            const done = i < step || (i === 4 && step === 4);
-            const active = i === step && step < 4;
-            return (
-              <div key={s.t} style={{ display: "flex", gap: 14, position: "relative", paddingBottom: i < TRACK_STEPS.length - 1 ? 26 : 0 }}>
-                {i < TRACK_STEPS.length - 1 && (
-                  <div style={{ position: "absolute", left: 19, top: 40, bottom: 2, width: 2, background: i < step ? C.tealDeep : C.line }} />
-                )}
-                <div className={active ? "rk-pulse" : ""} style={{
-                  width: 40, height: 40, borderRadius: "50%", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                  background: done ? C.tealDeep : active ? C.gold : C.line, color: done || active ? "#fff" : C.inkSoft, zIndex: 1,
-                }}>
-                  {done ? <Check size={18} /> : <s.icon size={18} />}
-                </div>
-                <div style={{ paddingTop: 2 }}>
-                  <div style={{ fontWeight: 800, fontSize: 14.5, color: done || active ? C.ink : C.inkSoft }}>{s.t}</div>
-                  <div style={{ fontSize: 13, color: C.inkSoft, lineHeight: 1.5, marginTop: 2 }}>{s.d}</div>
-                  {i === 1 && step >= 1 && (
-                    <div style={{ marginTop: 8, background: C.cream, border: `1px solid ${C.line}`, borderRadius: 12, padding: "10px 12px", display: "flex", gap: 10, alignItems: "center" }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, background: C.maroon, color: C.cream, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: serif, fontWeight: 700 }}>
-                        {florist.nama[0]}
-                      </div>
-                      <div style={{ fontSize: 12.5, lineHeight: 1.45 }}>
-                        <div style={{ fontWeight: 800 }}>{florist.nama}</div>
-                        <div style={{ color: C.inkSoft, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><MapPin size={12} /> {florist.area} · {florist.jarak}</span>
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}><Star size={12} fill={C.gold} color={C.gold} /> {florist.rating} · {florist.order} order</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Right column: foto konfirmasi / selesai */}
-        <div>
-          <div className="rk-card" style={{ padding: 20, marginBottom: 16 }}>
-            <div style={{ fontWeight: 800, color: C.maroon, marginBottom: 10, display: "flex", alignItems: "center", gap: 8 }}>
-              <Camera size={17} /> {step >= 2 ? "Foto rakitan dari floris" : "Preview rancanganmu"}
-            </div>
-            <div style={{
-              maxWidth: 250, margin: "0 auto", padding: 10, background: "#fff",
-              border: `1px solid ${C.line}`, borderRadius: 6, boxShadow: "0 8px 20px rgba(59,42,48,.12)",
-              transform: "rotate(-1.2deg)",
-              filter: step >= 2 ? "none" : "grayscale(.15) opacity(.85)",
-            }}>
-              <Stage items={items} mode={mode} wrap={wrap} base={base} sizeCfg={sizeCfg} readonly selectedId={null} onSelect={() => {}} onDragTo={() => {}} />
-              <div style={{ fontFamily: serif, fontStyle: "italic", fontSize: 12, color: C.inkSoft, textAlign: "center", paddingTop: 8 }}>
-                {step >= 2 ? `dirakit oleh ${florist.nama}` : "menunggu floris merakit…"}
-              </div>
-            </div>
-            {step === 2 && !approved && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ fontSize: 13, color: C.inkSoft, marginBottom: 10, lineHeight: 1.5 }}>
-                  Hasil dapat sedikit bervariasi dari preview. Setujui untuk melanjutkan ke pengantaran, atau minta revisi ke floris.
-                </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button className="rk-btn rk-btn-primary" style={{ flex: 1, justifyContent: "center", padding: "11px 0", fontSize: 14 }}
-                    onClick={() => { setApproved(true); setStep(3); }}>
-                    <Check size={16} /> Setujui & kirim
-                  </button>
-                  <button className="rk-btn rk-btn-ghost" style={{ flex: 1, justifyContent: "center", padding: "11px 0", fontSize: 14 }}
-                    onClick={() => setRevisi(true)}>
-                    <MessageCircle size={16} /> Minta revisi
-                  </button>
-                </div>
-                {revisi && (
-                  <div style={{ marginTop: 10, background: C.cream, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "10px 12px", fontSize: 12.5, color: C.ink, lineHeight: 1.5 }}>
-                    Permintaan revisi terkirim. Di fase pilot, tim kami meneruskannya ke floris via WhatsApp dan foto baru akan muncul di sini.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {step === 4 && (
-            <div className="rk-card" style={{ padding: 20, textAlign: "center" }}>
-              <div className="rk-serif" style={{ fontSize: 20, fontWeight: 700, color: C.maroon, marginBottom: 6 }}>Bunga sudah diterima 🌷</div>
-              <div style={{ fontSize: 13.5, color: C.inkSoft, marginBottom: 12 }}>Beri nilai untuk {florist.nama}</div>
-              <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 14 }}>
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <button key={n} onClick={() => setRating(n)} aria-label={`${n} bintang`}
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: 2 }}>
-                    <Star size={30} fill={n <= rating ? C.gold : "none"} color={C.gold} />
-                  </button>
-                ))}
-              </div>
-              {rating > 0 && <div style={{ fontSize: 13.5, color: C.tealDeep, fontWeight: 700, marginBottom: 12 }}>Terima kasih atas penilaianmu!</div>}
-              <button className="rk-btn rk-btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px 0", fontSize: 14.5 }} onClick={() => go("builder")}>
-                <Sparkles size={16} /> Rangkai lagi
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -664,16 +403,6 @@ export default function BouquetBuilder({ onSwitchProduk }) {
       sizeId: SIZES.some((s) => s.id === sizeId) ? sizeId : "M",
     };
   });
-  const [order, setOrder] = useState(null);
-  const [step, setStep] = useState("builder");
 
-  const goStep = (s) => { setStep(s); window.scrollTo({ top: 0 }); };
-
-  return (
-    <>
-      {step === "builder" && <BuilderCanvasStep design={design} setDesign={setDesign} go={goStep} onSwitchProduk={onSwitchProduk} />}
-      {step === "checkout" && <BuilderCheckoutStep design={design} go={goStep} setOrder={setOrder} />}
-      {step === "tracking" && order && <BuilderTrackingStep design={design} order={order} go={goStep} />}
-    </>
-  );
+  return <BuilderCanvasStep design={design} setDesign={setDesign} onSwitchProduk={onSwitchProduk} />;
 }
