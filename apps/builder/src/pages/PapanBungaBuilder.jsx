@@ -1,11 +1,12 @@
 import { useMemo, useRef, useState } from "react";
 import {
   Heart, Flower2, Store, GraduationCap, PartyPopper, Sparkles,
-  ChevronLeft, ChevronRight, Check, MessageCircle, ShoppingBag, Info, LayoutTemplate, LayoutGrid,
+  ChevronLeft, ChevronRight, ShoppingBag, Info, LayoutTemplate, LayoutGrid,
 } from "lucide-react";
 import { C } from "../lib/theme";
-import { supabase, ADMIN_WA } from "../lib/supabase";
-import { sanitizeText, sanitizeForMessage } from "../lib/sanitize";
+import { supabase } from "../lib/supabase";
+import { SITE_URL } from "../lib/urls";
+import { sanitizeText } from "../lib/sanitize";
 import {
   KATEGORI_ACARA, UKURAN_PAPAN, BENTUK_PAPAN, TEXT_FIELD_LIMITS, TEKS_UCAPAN_DEFAULT,
   rupiahRange, hargaEstimasi,
@@ -15,6 +16,12 @@ import PapanBungaIllustration from "../components/papanBunga/PapanBungaIllustrat
 const KATEGORI_ICON = { Heart, Flower2, Store, GraduationCap, PartyPopper, Sparkles };
 const CATATAN_MAX = 400;
 const CUSTOM_UCAPAN = "__custom__";
+
+function newRefId() {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
 
 function countLines(text) {
   return (text || "").split(/\r\n|\r|\n/).length;
@@ -238,12 +245,12 @@ function StepIsiTeks({ form, setForm }) {
 
 /* ---------------- Preview + estimasi panel ---------------- */
 
-function PreviewPanel({ bentukId, densityScale, previewValues, uppercaseZones, estimasi }) {
+function PreviewPanel({ previewRef, bentukId, densityScale, previewValues, uppercaseZones, estimasi }) {
   return (
     <div className="rk-card" style={{ padding: 16, position: "sticky", top: 16 }}>
       <div style={{ fontWeight: 800, fontSize: 14, color: C.maroon, marginBottom: 10 }}>Preview papan bunga</div>
       {bentukId ? (
-        <PapanBungaIllustration bentukId={bentukId} densityScale={densityScale} values={previewValues} uppercaseZones={uppercaseZones} />
+        <PapanBungaIllustration ref={previewRef} bentukId={bentukId} densityScale={densityScale} values={previewValues} uppercaseZones={uppercaseZones} />
       ) : (
         <div style={{ aspectRatio: "420 / 300", display: "flex", alignItems: "center", justifyContent: "center", background: C.cream, border: `1px dashed ${C.line}`, borderRadius: 18, color: C.inkSoft, fontSize: 12.5, textAlign: "center", padding: 16 }}>
           Pilih bentuk papan untuk melihat preview.
@@ -267,7 +274,7 @@ function PreviewPanel({ bentukId, densityScale, previewValues, uppercaseZones, e
 
 /* ---------------- Wizard orchestrator ---------------- */
 
-function PapanBungaWizard({ form, setForm, onSubmit, onSwitchProduk }) {
+function PapanBungaWizard({ form, setForm, onSubmit, onSwitchProduk, previewRef, sending, err }) {
   const [step, setStep] = useState(1);
 
   const ukuran = UKURAN_PAPAN.find((u) => u.id === form.ukuranId) || null;
@@ -336,7 +343,7 @@ function PapanBungaWizard({ form, setForm, onSubmit, onSwitchProduk }) {
           {step === 2 && <StepBentuk form={form} setForm={setForm} />}
           {step === 3 && <StepIsiTeks form={form} setForm={setForm} />}
 
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24, paddingTop: 18, borderTop: `1px solid ${C.line}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 24, paddingTop: 18, borderTop: `1px solid ${C.line}` }}>
             <button className="rk-btn rk-btn-ghost" style={{ padding: "10px 18px", fontSize: 13.5, visibility: step === 1 ? "hidden" : "visible" }} onClick={() => setStep((s) => s - 1)}>
               <ChevronLeft size={16} /> Kembali
             </button>
@@ -348,245 +355,23 @@ function PapanBungaWizard({ form, setForm, onSubmit, onSwitchProduk }) {
               <button
                 className="rk-btn rk-btn-primary"
                 style={{ padding: "10px 20px", fontSize: 13.5 }}
-                disabled={!canNext}
+                disabled={!canNext || sending}
                 onClick={() =>
                   onSubmit({
                     ukuran, bentuk, estimasi, densityScale, previewValues, uppercaseZones,
                   })
                 }
               >
-                <ShoppingBag size={16} /> Lanjut ke checkout
+                <ShoppingBag size={16} /> {sending ? "Menyimpan…" : "Lanjut ke checkout"}
               </button>
             )}
           </div>
+          {err && <div style={{ color: "#a13d3d", fontSize: 12.5, fontWeight: 600, marginTop: 12, textAlign: "right" }}>{err}</div>}
         </div>
 
         {step > 1 && (
-          <PreviewPanel bentukId={form.bentukId} densityScale={densityScale} previewValues={previewValues} uppercaseZones={uppercaseZones} estimasi={estimasi} />
+          <PreviewPanel previewRef={previewRef} bentukId={form.bentukId} densityScale={densityScale} previewValues={previewValues} uppercaseZones={uppercaseZones} estimasi={estimasi} />
         )}
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Checkout ---------------- */
-
-function PapanBungaCheckoutStep({ form, snapshot, go, setOrder }) {
-  const { ukuran, bentuk, estimasi, densityScale, previewValues, uppercaseZones } = snapshot;
-  const canvasRef = useRef(null);
-  const [shipping, setShipping] = useState({ nama: "", wa: "", alamat: "", tanggal: "", waktu: "10:00 – 12:00" });
-  const [err, setErr] = useState("");
-  const [sending, setSending] = useState(false);
-  const set = (k) => (e) => setShipping((s) => ({ ...s, [k]: e.target.value }));
-
-  const kategori = KATEGORI_ACARA.find((k) => k.id === form.kategoriId);
-  const kategoriLabel = form.kategoriId === "lainnya" && form.kategoriLainnyaText.trim() ? form.kategoriLainnyaText.trim() : kategori?.label;
-
-  const submit = async () => {
-    if (!shipping.nama.trim() || !shipping.alamat.trim() || !shipping.tanggal) {
-      setErr("Nama penerima, alamat, dan tanggal kirim wajib diisi.");
-      return;
-    }
-    setErr("");
-    setSending(true);
-
-    const kode = "KM-" + Math.floor(1000 + Math.random() * 9000);
-    const catatanFloris = sanitizeText(form.catatanFloris, { maxChars: CATATAN_MAX, maxLines: 8 });
-
-    const config = {
-      kategoriId: form.kategoriId,
-      kategoriLabel,
-      ukuranId: ukuran?.id,
-      ukuranLabel: ukuran?.label,
-      bentukId: bentuk?.id,
-      bentukLabel: bentuk?.label,
-      ucapan: previewValues.ucapan,
-      namaUtama: previewValues.nama_utama,
-      namaUtamaUppercase: uppercaseZones.includes("nama_utama"),
-      teksPendukung: previewValues.teks_pendukung,
-      namaPengirim: previewValues.nama_pengirim,
-      catatanFloris,
-    };
-
-    let previewUrl = null;
-    try {
-      if (supabase && canvasRef.current) {
-        const blob = await new Promise((resolve) => canvasRef.current.toBlob(resolve, "image/png"));
-        if (blob) {
-          const path = `orders/${kode}/preview.png`;
-          const { error: upErr } = await supabase.storage.from("papan-bunga-preview").upload(path, blob, { contentType: "image/png", upsert: true });
-          if (!upErr) {
-            previewUrl = supabase.storage.from("papan-bunga-preview").getPublicUrl(path).data.publicUrl;
-          }
-        }
-      }
-    } catch {
-      // Upload preview gagal tidak boleh menggagalkan pembuatan order —
-      // floris tetap bisa lihat detail lewat papan_bunga_config.
-    }
-
-    if (supabase) {
-      const { error } = await supabase.from("orders").insert({
-        kode,
-        nama: shipping.nama.trim(),
-        wa: shipping.wa.trim() || null,
-        alamat: shipping.alamat.trim(),
-        tanggal: shipping.tanggal,
-        waktu: shipping.waktu,
-        metode_bayar: null,
-        mode: null,
-        product_type: "papan_bunga",
-        ukuran: ukuran?.id,
-        wrapping: null,
-        ring_dasar: null,
-        items: [],
-        subtotal: null,
-        ongkir: null,
-        total: null,
-        harga_estimasi_min: estimasi?.min ?? null,
-        harga_estimasi_max: estimasi?.max ?? null,
-        harga_final: null,
-        desain_preview_url: previewUrl,
-        papan_bunga_config: config,
-      });
-      setSending(false);
-      if (error) {
-        setErr("Pesanan gagal disimpan: " + error.message + ". Coba lagi ya.");
-        return;
-      }
-    } else {
-      setSending(false);
-    }
-
-    setOrder({ ...shipping, kode, estimasi, previewUrl, config });
-    go("confirmation");
-  };
-
-  return (
-    <div style={{ maxWidth: 980, margin: "0 auto", padding: "26px 16px 60px" }}>
-      <button className="rk-btn rk-btn-ghost" style={{ padding: "8px 16px", fontSize: 13.5, marginBottom: 18 }} onClick={() => go("wizard")}>
-        <ChevronLeft size={16} /> Kembali ke wizard
-      </button>
-      <h2 className="rk-serif" style={{ fontSize: 28, color: C.maroon, marginBottom: 20 }}>Checkout papan bunga</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 20 }}>
-        <div className="rk-card" style={{ padding: 20 }}>
-          <div style={{ fontWeight: 800, color: C.maroon, marginBottom: 14 }}>Pengiriman</div>
-          <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Nama penerima</label>
-          <input className="rk-input" value={shipping.nama} onChange={set("nama")} placeholder="cth. Panitia Acara" style={{ marginBottom: 12 }} />
-          <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Nomor WhatsApp penerima</label>
-          <input className="rk-input" value={shipping.wa} onChange={set("wa")} placeholder="08xx xxxx xxxx" style={{ marginBottom: 12 }} inputMode="tel" />
-          <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Alamat lengkap</label>
-          <textarea className="rk-input" rows={3} value={shipping.alamat} onChange={set("alamat")} placeholder="Jalan, nomor, gedung, patokan…" style={{ marginBottom: 12, resize: "vertical" }} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Tanggal kirim</label>
-              <input className="rk-input" type="date" value={shipping.tanggal} onChange={set("tanggal")} />
-            </div>
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 700, display: "block", marginBottom: 5 }}>Jam kirim</label>
-              <select className="rk-input" value={shipping.waktu} onChange={set("waktu")}>
-                {["08:00 – 10:00", "10:00 – 12:00", "13:00 – 15:00", "15:00 – 17:00", "17:00 – 19:00"].map((t) => <option key={t}>{t}</option>)}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="rk-card" style={{ padding: 20 }}>
-          <div style={{ fontWeight: 800, color: C.maroon, marginBottom: 14 }}>Ringkasan pesanan</div>
-          <div style={{ maxWidth: 260, margin: "0 auto 14px" }}>
-            <PapanBungaIllustration ref={canvasRef} bentukId={bentuk?.id} densityScale={densityScale} values={previewValues} uppercaseZones={uppercaseZones} />
-          </div>
-          <div style={{ fontSize: 13.5, display: "grid", gap: 4 }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Kategori</span><span style={{ fontWeight: 600 }}>{kategoriLabel}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Ukuran</span><span style={{ fontWeight: 600 }}>{ukuran?.label}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span>Bentuk</span><span style={{ fontWeight: 600 }}>{bentuk?.label}</span></div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", borderTop: `2px solid ${C.maroon}`, marginTop: 10, paddingTop: 10 }}>
-            <span style={{ fontWeight: 800 }}>Estimasi biaya</span>
-            <span className="rk-serif" style={{ fontWeight: 800, fontSize: 20, color: C.maroon }}>{estimasi ? rupiahRange(estimasi.min, estimasi.max) : "-"}</span>
-          </div>
-          <div style={{ fontSize: 11.5, color: C.inkSoft, margin: "8px 0 14px", lineHeight: 1.5 }}>
-            Ongkos kirim & harga final dikonfirmasi floris via WhatsApp sebelum pembayaran — belum termasuk di estimasi ini.
-          </div>
-          {err && <div style={{ color: "#a13d3d", fontSize: 13, fontWeight: 600, marginBottom: 10 }}>{err}</div>}
-          <button className="rk-btn rk-btn-primary" style={{ width: "100%", justifyContent: "center", padding: "14px 0", fontSize: 15.5 }} onClick={submit} disabled={sending}>
-            <Check size={17} /> {sending ? "Menyimpan pesanan…" : "Buat pesanan"}
-          </button>
-          <div style={{ fontSize: 11, color: C.inkSoft, textAlign: "center", marginTop: 8 }}>
-            {supabase ? "Fase pilot: harga & status dikonfirmasi floris via WhatsApp." : "Mode demo — pesanan tidak disimpan (env Supabase belum diisi)."}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------------- Confirmation ---------------- */
-
-function buildWaMessage(order) {
-  const c = order.config;
-  const lines = [
-    `Halo Kalamekar! Saya baru membuat pesanan papan bunga ${order.kode}.`,
-    ``,
-    `Kategori: ${sanitizeForMessage(c.kategoriLabel || "-")}`,
-    `Ukuran: ${sanitizeForMessage(c.ukuranLabel || "-")}`,
-    `Bentuk: ${sanitizeForMessage(c.bentukLabel || "-")}`,
-    `Ucapan: ${sanitizeForMessage(c.ucapan || "-")}`,
-    `Teks utama: ${sanitizeForMessage(c.namaUtama || "-")}${c.namaUtamaUppercase ? " (KAPITAL)" : ""}`,
-    c.teksPendukung ? `Teks pendukung: ${sanitizeForMessage(c.teksPendukung)}` : null,
-    `Nama pengirim: ${sanitizeForMessage(c.namaPengirim || "-")}`,
-    c.catatanFloris ? `Catatan untuk floris: ${sanitizeForMessage(c.catatanFloris, 400)}` : null,
-    ``,
-    `Estimasi biaya: ${order.estimasi ? rupiahRange(order.estimasi.min, order.estimasi.max) : "-"}`,
-    order.previewUrl ? `Preview desain: ${order.previewUrl}` : null,
-    ``,
-    `Kirim ${order.tanggal} (${order.waktu}) ke ${sanitizeForMessage(order.alamat, 300)}.`,
-    `Mohon balas dengan harga final ya sebelum pesanan lanjut ke tahap dikonfirmasi 🌸`,
-  ].filter(Boolean);
-  return lines.join("\n");
-}
-
-function PapanBungaConfirmationStep({ order, go }) {
-  return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: "26px 16px 60px", textAlign: "center" }}>
-      <h2 className="rk-serif" style={{ fontSize: 26, color: C.maroon, marginBottom: 6 }}>Pesanan {order.kode} diterima</h2>
-      <p style={{ color: C.inkSoft, fontSize: 14, marginBottom: 20 }}>
-        Kirim ke {order.nama} · {order.tanggal} · {order.waktu}
-      </p>
-
-      {order.previewUrl && (
-        <div style={{ maxWidth: 280, margin: "0 auto 20px" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={order.previewUrl} alt="Preview papan bunga" style={{ width: "100%", borderRadius: 14, border: `1px solid ${C.line}` }} />
-        </div>
-      )}
-
-      <div className="rk-card" style={{ padding: 20, textAlign: "left", marginBottom: 20 }}>
-        <div style={{ display: "flex", gap: 8, fontSize: 13, color: C.inkSoft, lineHeight: 1.6 }}>
-          <Info size={16} style={{ flexShrink: 0, marginTop: 2, color: C.maroon }} />
-          <span>
-            Estimasi biaya: <strong>{order.estimasi ? rupiahRange(order.estimasi.min, order.estimasi.max) : "-"}</strong>.
-            Floris akan meninjau detail pesananmu dan mengirim harga final via WhatsApp — pesananmu baru berstatus &ldquo;Dikonfirmasi&rdquo; setelah harga disepakati.
-          </span>
-        </div>
-      </div>
-
-      {ADMIN_WA && (
-        <a
-          className="rk-btn rk-btn-teal"
-          style={{ padding: "13px 22px", fontSize: 14, textDecoration: "none", marginBottom: 14, display: "inline-flex" }}
-          href={"https://wa.me/" + ADMIN_WA + "?text=" + encodeURIComponent(buildWaMessage(order))}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <MessageCircle size={17} /> Kirim detail & minta harga final via WhatsApp
-        </a>
-      )}
-
-      <div>
-        <button className="rk-btn rk-btn-ghost" style={{ padding: "10px 18px", fontSize: 13.5 }} onClick={() => go("wizard")}>
-          Rangkai papan bunga lagi
-        </button>
       </div>
     </div>
   );
@@ -613,21 +398,88 @@ export default function PapanBungaBuilder({ onSwitchProduk }) {
       catatanFloris: "",
     };
   });
-  const [page, setPage] = useState("wizard");
-  const [snapshot, setSnapshot] = useState(null);
-  const [order, setOrder] = useState(null);
+  const previewRef = useRef(null);
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState("");
 
-  const goPage = (p) => { setPage(p); window.scrollTo({ top: 0 }); };
+  const handleSubmit = async (snap) => {
+    setErr("");
+    if (!supabase) {
+      setErr("Checkout builder butuh koneksi Supabase aktif (env belum diisi).");
+      return;
+    }
+    setSending(true);
+
+    const kategori = KATEGORI_ACARA.find((k) => k.id === form.kategoriId);
+    const kategoriLabel = form.kategoriId === "lainnya" && form.kategoriLainnyaText.trim() ? form.kategoriLainnyaText.trim() : kategori?.label;
+    const catatanFloris = sanitizeText(form.catatanFloris, { maxChars: CATATAN_MAX, maxLines: 8 });
+
+    const config = {
+      kategoriId: form.kategoriId,
+      kategoriLabel,
+      ukuranId: snap.ukuran?.id,
+      ukuranLabel: snap.ukuran?.label,
+      bentukId: snap.bentuk?.id,
+      bentukLabel: snap.bentuk?.label,
+      ucapan: snap.previewValues.ucapan,
+      namaUtama: snap.previewValues.nama_utama,
+      namaUtamaUppercase: snap.uppercaseZones.includes("nama_utama"),
+      teksPendukung: snap.previewValues.teks_pendukung,
+      namaPengirim: snap.previewValues.nama_pengirim,
+      catatanFloris,
+    };
+
+    // Id komposisi digenerate di client (bukan lewat default gen_random_uuid()
+    // Postgres) supaya path storage preview bisa dipakai SEBELUM row-nya ada
+    // — builder_compositions cuma punya policy insert & select, tidak ada
+    // policy update untuk mengisi preview_url belakangan.
+    const compositionId = newRefId();
+    let previewUrl = null;
+    try {
+      if (previewRef.current) {
+        const blob = await new Promise((resolve) => previewRef.current.toBlob(resolve, "image/png"));
+        if (blob) {
+          const path = `compositions/${compositionId}/preview.png`;
+          const { error: upErr } = await supabase.storage.from("papan-bunga-preview").upload(path, blob, { contentType: "image/png", upsert: true });
+          if (!upErr) previewUrl = supabase.storage.from("papan-bunga-preview").getPublicUrl(path).data.publicUrl;
+        }
+      }
+    } catch {
+      // Upload preview gagal tidak boleh menggagalkan checkout — floris
+      // tetap bisa lihat detail lewat papan_bunga_config.
+    }
+
+    // Harga pasti belum ada (floris konfirmasi final via WA setelah order
+    // masuk) — titik tengah rentang estimasi dipakai sebagai harga di
+    // keranjang/checkout supaya kolom `harga` (NOT NULL) tetap terisi wajar.
+    const harga = snap.estimasi ? Math.round((snap.estimasi.min + snap.estimasi.max) / 2) : 0;
+
+    const { error } = await supabase.from("builder_compositions").insert({
+      id: compositionId,
+      product_type: "papan_bunga",
+      ukuran: snap.ukuran?.id || null,
+      papan_bunga_config: config,
+      preview_url: previewUrl,
+      harga,
+    });
+
+    setSending(false);
+    if (error) {
+      setErr("Gagal menyimpan rangkaian: " + error.message + ". Coba lagi ya.");
+      return;
+    }
+    window.location.href = `${SITE_URL}/keranjang/tambah?composition_id=${compositionId}&source=builder`;
+  };
 
   return (
-    <>
-      {page === "wizard" && (
-        <PapanBungaWizard form={form} setForm={setForm} onSubmit={(snap) => { setSnapshot(snap); goPage("checkout"); }} onSwitchProduk={onSwitchProduk} />
-      )}
-      {page === "checkout" && snapshot && (
-        <PapanBungaCheckoutStep form={form} snapshot={snapshot} go={goPage} setOrder={setOrder} />
-      )}
-      {page === "confirmation" && order && <PapanBungaConfirmationStep order={order} go={goPage} />}
-    </>
+    <PapanBungaWizard
+      form={form}
+      setForm={setForm}
+      onSubmit={handleSubmit}
+      onSwitchProduk={onSwitchProduk}
+      previewRef={previewRef}
+      sending={sending}
+      err={err}
+    />
   );
 }
