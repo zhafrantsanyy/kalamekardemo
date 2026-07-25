@@ -307,12 +307,16 @@ export default function About() {
               Temukan florist terbaik di kotamu, atau daftarkan toko bungamu dan jangkau ribuan pembeli baru.
             </p>
             <div style={{ marginTop: 32, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", position: "relative" }}>
-              <Link className="rk-btn" style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", textDecoration: "none" }} href="/toko-bunga">
+              <Link
+                className="rk-btn"
+                style={{ background: "var(--rk-gold)", color: "var(--rk-maroon-deep)", padding: "13px 24px", fontSize: 14.5, textDecoration: "none" }}
+                href="/toko-bunga"
+              >
                 Cari Florist di Kotamu
               </Link>
               <Link
                 className="rk-btn"
-                style={{ background: "transparent", color: "#fff", border: "1.5px solid rgba(255,255,255,.5)", textDecoration: "none" }}
+                style={{ background: "transparent", color: "#fff", border: "1.5px solid rgba(255,255,255,.5)", padding: "13px 24px", fontSize: 14.5, textDecoration: "none" }}
                 href="/untuk-florist"
               >
                 Gabung Sebagai Florist

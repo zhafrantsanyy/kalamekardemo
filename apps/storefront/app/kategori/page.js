@@ -62,15 +62,16 @@ export default function KategoriPage() {
               <span className="rk-cat-icon"><c.icon size={20} color="var(--rk-maroon)" /></span>
               <h2 className="rk-serif" style={{ fontSize: 19, fontWeight: 700, color: "var(--rk-ink)", marginBottom: 8 }}>{c.nama}</h2>
               <p style={{ fontSize: 14, color: "var(--rk-ink-soft)", lineHeight: 1.6 }}>{c.desc}</p>
-              {c.links.length > 0 && (
-                <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {c.links.map((l) => (
-                    <Link key={l.href} href={l.href} className="rk-link-chip rk-link-chip-active" style={{ fontSize: 12.5, padding: "6px 12px" }}>
-                      {l.nama} <ChevronRight size={12} />
-                    </Link>
-                  ))}
-                </div>
-              )}
+              <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <Link href={`/kategori/${c.id}`} className="rk-link-chip rk-link-chip-active" style={{ fontSize: 12.5, padding: "6px 12px" }}>
+                  Lihat Produk <ChevronRight size={12} />
+                </Link>
+                {c.links.map((l) => (
+                  <Link key={l.href} href={l.href} className="rk-link-chip rk-link-chip-active" style={{ fontSize: 12.5, padding: "6px 12px" }}>
+                    {l.nama} <ChevronRight size={12} />
+                  </Link>
+                ))}
+              </div>
             </div>
           ))}
         </div>
