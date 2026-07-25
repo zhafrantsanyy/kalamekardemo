@@ -196,8 +196,21 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* Hero */}
-      <section style={{ background: "linear-gradient(180deg, #FDF7FA 0%, #FFFFFF 70%)", padding: "0 20px" }}>
-        <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 32, padding: "60px 0 68px" }}>
+      <section style={{ position: "relative", overflow: "hidden", background: "linear-gradient(180deg, #FDF7FA 0%, #FFFFFF 70%)", padding: "0 20px" }}>
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute", inset: 0,
+            backgroundImage: "url(https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&w=1600)",
+            backgroundSize: "cover", backgroundPosition: "center 30%",
+            opacity: 0.16, filter: "saturate(1.15)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{ position: "absolute", inset: 0, background: "linear-gradient(100deg, #FDF7FA 30%, rgba(253,247,250,.55) 55%, rgba(255,255,255,.25) 75%)" }}
+        />
+        <div style={{ position: "relative", maxWidth: 1080, margin: "0 auto", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 32, padding: "60px 0 68px" }}>
           <div style={{ flex: "1 1 420px", minWidth: 280 }}>
             <span className="rk-eyebrow"><Leaf size={13} /> Marketplace florist lokal Indonesia</span>
             <h1 className="rk-serif rk-hero-title" style={{ fontSize: 44, lineHeight: 1.14, fontWeight: 700, margin: "16px 0", color: "var(--rk-maroon-deep)" }}>

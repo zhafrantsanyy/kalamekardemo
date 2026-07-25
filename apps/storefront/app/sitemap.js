@@ -2,6 +2,7 @@ import { SITE_URL as BASE_URL } from "@kalamekar/shared/tokens";
 import { LIVE_KOTA_SLUGS, JAKARTA_SUBAREA_SLUGS } from "@/lib/data/kota";
 import { MOMEN_LIST } from "@/lib/data/momen";
 import { blogPosts } from "@/lib/data/blog";
+import { KATEGORI_LIST } from "@/lib/data/kategori";
 
 export default function sitemap() {
   const staticPages = [
@@ -44,5 +45,11 @@ export default function sitemap() {
     lastModified: post.tanggalUpdate || post.tanggalPublish,
   }));
 
-  return [...staticPages, ...cityPages, ...subAreaPages, ...momenPages, ...blogPages];
+  const kategoriPages = KATEGORI_LIST.map((k) => ({
+    url: `${BASE_URL}/kategori/${k.id}`,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...cityPages, ...subAreaPages, ...momenPages, ...blogPages, ...kategoriPages];
 }

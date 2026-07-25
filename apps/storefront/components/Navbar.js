@@ -23,7 +23,7 @@ function momenGroupColumns(labels) {
   }));
 }
 
-const PRODUK_COLUMNS = [{ items: KATEGORI_LIST.map((k) => ({ label: k.nama, href: `/kategori#${k.id}` })) }];
+const PRODUK_COLUMNS = [{ items: KATEGORI_LIST.map((k) => ({ label: k.nama, href: `/kategori/${k.id}` })) }];
 const MOMEN_COLUMNS = momenGroupColumns(["Momen Personal", "Acara & Formal", "Korporat", "Duka Cita & Religi"]);
 const TOKO_BUNGA_COLUMNS = [
   { label: "Kota Utama", items: LIVE_KOTA_SLUGS.map((slug) => ({ label: KOTA_DATA[slug].nama, href: `/toko-bunga/${slug}` })) },
