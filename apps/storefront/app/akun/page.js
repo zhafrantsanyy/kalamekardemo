@@ -5,12 +5,14 @@ import { createClient } from "@/lib/supabase/server";
 import { rupiah } from "@/lib/catalog";
 import StatusBadge from "@/components/StatusBadge";
 import AkunOrderFilterBar from "@/components/akun/AkunOrderFilterBar";
+import StatCard from "@/components/akun/StatCard";
 
 const AKTIF_STATUSES = ["baru", "matching", "dikonfirmasi", "dirakit", "diantar"];
 
 export default async function AkunRiwayatPage({ searchParams }) {
   const sp = await searchParams;
   const status = sp?.status || "";
+  const group = sp?.group || "";
   const q = (sp?.q || "").trim().toLowerCase();
 
   const supabase = await createClient();
@@ -32,24 +34,16 @@ export default async function AkunRiwayatPage({ searchParams }) {
   };
 
   let filtered = orders;
-  if (status) filtered = filtered.filter((o) => o.status === status);
+  if (group === "aktif") filtered = filtered.filter((o) => AKTIF_STATUSES.includes(o.status));
+  else if (status) filtered = filtered.filter((o) => o.status === status);
   if (q) filtered = filtered.filter((o) => o.kode.toLowerCase().includes(q));
 
   return (
     <div style={{ display: "grid", gap: 20 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-        <div className="rk-card" style={{ padding: 18 }}>
-          <div style={{ fontSize: 12, color: "var(--rk-ink-soft)", fontWeight: 600 }}>Total pesanan</div>
-          <div className="rk-serif" style={{ fontSize: 26, fontWeight: 700, color: "var(--rk-maroon-deep)", marginTop: 6 }}>{stats.total}</div>
-        </div>
-        <div className="rk-card" style={{ padding: 18 }}>
-          <div style={{ fontSize: 12, color: "var(--rk-ink-soft)", fontWeight: 600 }}>Sedang berjalan</div>
-          <div className="rk-serif" style={{ fontSize: 26, fontWeight: 700, color: "var(--rk-maroon-deep)", marginTop: 6 }}>{stats.aktif}</div>
-        </div>
-        <div className="rk-card" style={{ padding: 18 }}>
-          <div style={{ fontSize: 12, color: "var(--rk-ink-soft)", fontWeight: 600 }}>Selesai</div>
-          <div className="rk-serif" style={{ fontSize: 26, fontWeight: 700, color: "var(--rk-maroon-deep)", marginTop: 6 }}>{stats.selesai}</div>
-        </div>
+        <StatCard label="Total pesanan" value={stats.total} href="/akun" active={!status && !group} />
+        <StatCard label="Sedang berjalan" value={stats.aktif} href="/akun?group=aktif" active={group === "aktif"} />
+        <StatCard label="Selesai" value={stats.selesai} href="/akun?status=selesai" active={status === "selesai"} />
       </div>
 
       <AkunOrderFilterBar />
