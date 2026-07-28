@@ -28,7 +28,7 @@ export default function AkunOrderFilterBar() {
   }
 
   function handleStatusChange(e) {
-    applyParams({ status: e.target.value });
+    applyParams({ status: e.target.value, group: "" });
   }
 
   function handleSubmit(e) {

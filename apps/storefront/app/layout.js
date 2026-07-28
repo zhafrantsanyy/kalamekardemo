@@ -2,6 +2,7 @@ import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import { SITE_URL } from "@kalamekar/shared/tokens";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ToastProvider from "@/components/ToastProvider";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -41,9 +42,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id" className={`${bricolageGrotesque.variable} ${plusJakartaSans.variable}`}>
       <body className="rk-root">
-        <Navbar />
-        {children}
-        <Footer />
+        <ToastProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </ToastProvider>
       </body>
     </html>
   );

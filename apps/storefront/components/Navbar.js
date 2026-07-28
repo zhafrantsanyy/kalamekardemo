@@ -10,6 +10,8 @@ import { MOMEN_DISPLAY_GROUPS, MOMEN_DATA } from "@/lib/data/momen";
 import { LIVE_KOTA_SLUGS, JAKARTA_SUBAREA_SLUGS, KOTA_DATA } from "@/lib/data/kota";
 import { createClient } from "@/lib/supabase/browser";
 import { getCartWithItems } from "@/lib/cart";
+import { PROFILE_CHANGED_EVENT } from "@/lib/profileEvents";
+import UserMenuDropdown from "@/components/navbar/UserMenuDropdown";
 
 // Nama event custom yang di-dispatch komponen lain (CartItemRow,
 // TambahKeKeranjangButton) setelah berhasil ubah isi keranjang, supaya
@@ -60,6 +62,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dashboardHref, setDashboardHref] = useState("/akun");
   const [cartCount, setCartCount] = useState(0);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -76,11 +79,21 @@ export default function Navbar() {
       if (!user) {
         setDashboardHref("/akun");
         setCartCount(0);
+        setProfile(null);
         return;
       }
 
       const { data: floris } = await supabase.from("florists").select("id").eq("user_id", user.id).maybeSingle();
       if (active) setDashboardHref(floris ? "/mitra" : "/akun");
+
+      if (!floris) {
+        const { data: profileRow } = await supabase
+          .from("profiles")
+          .select("nama, avatar_url")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (active) setProfile({ id: user.id, nama: profileRow?.nama || user.email, avatarUrl: profileRow?.avatar_url });
+      }
 
       await refreshCartCount(user.id);
     }
@@ -88,6 +101,19 @@ export default function Navbar() {
     async function refreshCartCount(userId) {
       const { items } = await getCartWithItems(supabase, userId);
       if (active) setCartCount(items.reduce((sum, item) => sum + item.quantity, 0));
+    }
+
+    async function refreshProfileOnly() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!active || !user) return;
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("nama, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (active) setProfile({ id: user.id, nama: profileRow?.nama || user.email, avatarUrl: profileRow?.avatar_url });
     }
 
     refreshAuthState();
@@ -102,11 +128,13 @@ export default function Navbar() {
       });
     }
     window.addEventListener(CART_CHANGED_EVENT, onCartChanged);
+    window.addEventListener(PROFILE_CHANGED_EVENT, refreshProfileOnly);
 
     return () => {
       active = false;
       subscription.unsubscribe();
       window.removeEventListener(CART_CHANGED_EVENT, onCartChanged);
+      window.removeEventListener(PROFILE_CHANGED_EVENT, refreshProfileOnly);
     };
   }, []);
 
@@ -231,9 +259,15 @@ export default function Navbar() {
           </Link>
 
           {isLoggedIn ? (
-            <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href={dashboardHref}>
-              <LayoutDashboard size={16} /> Dashboard
-            </Link>
+            profile ? (
+              <div className="rk-hide-sm">
+                <UserMenuDropdown nama={profile.nama} avatarUrl={profile.avatarUrl} userId={profile.id} dashboardHref={dashboardHref} />
+              </div>
+            ) : (
+              <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href={dashboardHref}>
+                <LayoutDashboard size={16} /> Dashboard
+              </Link>
+            )
           ) : (
             <Link className="rk-btn rk-btn-ghost rk-hide-sm" style={{ padding: "9px 16px", fontSize: 14, textDecoration: "none" }} href="/masuk">
               <LogIn size={16} /> Masuk
@@ -321,16 +355,32 @@ export default function Navbar() {
             >
               <ShoppingBag size={16} /> Keranjang{cartCount > 0 ? ` (${cartCount})` : ""}
             </Link>
+            {isLoggedIn && profile && (
+              <>
+                <div className="rk-nav-mobile-divider" />
+                <div className="rk-nav-mobile-user">
+                  <UserMenuDropdown
+                    nama={profile.nama}
+                    avatarUrl={profile.avatarUrl}
+                    userId={profile.id}
+                    dashboardHref={dashboardHref}
+                    onNavigate={() => setMobileOpen(false)}
+                  />
+                </div>
+              </>
+            )}
             <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
               {isLoggedIn ? (
-                <Link
-                  className="rk-btn rk-btn-ghost"
-                  style={{ padding: "10px 16px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
-                  href={dashboardHref}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <LayoutDashboard size={16} /> Dashboard
-                </Link>
+                !profile && (
+                  <Link
+                    className="rk-btn rk-btn-ghost"
+                    style={{ padding: "10px 16px", fontSize: 14, textDecoration: "none", justifyContent: "center", flex: 1 }}
+                    href={dashboardHref}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                )
               ) : (
                 <Link
                   className="rk-btn rk-btn-ghost"
