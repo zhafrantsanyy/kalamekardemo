@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/LogoutButton";
 import AkunTabs from "@/components/akun/AkunTabs";
+import DashboardSidebar from "@/components/akun/DashboardSidebar";
 
 export const metadata = {
   title: { absolute: "Akun Saya — Kalamekar" },
@@ -31,8 +32,15 @@ export default async function AkunLayout({ children }) {
         </div>
         <LogoutButton />
       </div>
-      <AkunTabs />
-      <div style={{ marginTop: 20 }}>{children}</div>
+      <div className="rk-dash-tabs-mobile" style={{ marginBottom: 20 }}>
+        <AkunTabs />
+      </div>
+      <div className="rk-dash-layout">
+        <DashboardSidebar />
+        <div className="rk-dash-content">
+          <div className="rk-page-transition">{children}</div>
+        </div>
+      </div>
     </section>
   );
 }
